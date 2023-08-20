@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTransTool", "EasyTransTool.csproj", "{3F25E664-3121-4E4F-AA01-495E54E2345F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3F25E664-3121-4E4F-AA01-495E54E2345F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F25E664-3121-4E4F-AA01-495E54E2345F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F25E664-3121-4E4F-AA01-495E54E2345F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F25E664-3121-4E4F-AA01-495E54E2345F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6B2C258E-AFCE-4A2D-85DF-5C32B380EE37}
+	EndGlobalSection
+EndGlobal
