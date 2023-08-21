@@ -24,6 +24,10 @@ namespace ExtPkgUpdateTool
 {
     public partial class Form1 : Form
     {
+        private NotifyIcon notifyIcon;
+        private ContextMenuStrip contextMenu;
+        private ToolStripMenuItem showMenuItem;
+        private ToolStripMenuItem exitMenuItem;
         IPAddressOp duIpOp = new IPAddressOp("./config/DuIpSet.cfg", "./config/Type.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("./config/RuIpSet.cfg", "./config/Type.cfg");
         IPAddressOp serverIpOp = new IPAddressOp("./config/ServerIpSet.cfg", "./config/Type.cfg");
@@ -31,9 +35,11 @@ namespace ExtPkgUpdateTool
         IPAddressOp fsuIpOp = new IPAddressOp("./config/FsuIpSet.cfg", "./config/Type.cfg");
         FilePathOp filePathOp = new FilePathOp();
         UserManager usrMng = new UserManager("./config/UserMng.cfg");
+        //MainForm mainForm = new MainForm();
         public Form1()
         {
             InitializeComponent();
+            InitializeSystemTray();
 
             filePath.Text = filePathOp.GetLastSelectedPath();
 
@@ -406,6 +412,94 @@ namespace ExtPkgUpdateTool
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
 
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void InitializeSystemTray()
+        {
+            // 创建 NotifyIcon
+            notifyIcon = new NotifyIcon();
+            notifyIcon.Icon = new Icon("1111.ico"); // 设置状态栏图标（自定义图标文件）
+            notifyIcon.Text = "My App"; // 设置状态栏提示文本
+
+            // 创建 ContextMenuStrip
+            contextMenu = new ContextMenuStrip();
+
+            // 创建 Show 菜单项
+            showMenuItem = new ToolStripMenuItem();
+            showMenuItem.Text = "打开程序";
+            showMenuItem.Click += ShowMenuItem_Click;
+
+            // 创建 Exit 菜单项
+            exitMenuItem = new ToolStripMenuItem();
+            exitMenuItem.Text = "退出";
+            exitMenuItem.Click += ExitMenuItem_Click;
+
+            // 添加菜单项到 ContextMenuStrip
+            contextMenu.Items.Add(showMenuItem);
+            contextMenu.Items.Add(exitMenuItem);
+
+            // 将 ContextMenuStrip 与 NotifyIcon 关联
+            notifyIcon.ContextMenuStrip = contextMenu;
+
+            // 将窗体的最小化操作转换为最小化到系统托盘
+            this.FormClosing += MainForm_FormClosing;
+
+            // 添加双击事件处理程序
+            notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
+
+            // 显示 NotifyIcon
+            notifyIcon.Visible = true;
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // 阻止窗体关闭，最小化到系统托盘
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;
+            }
+        }
+
+        private void ShowMenuItem_Click(object sender, EventArgs e)
+        {
+            // 双击状态栏图标或点击 Show 菜单项时，还原窗体并显示
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.Show();
+        }
+
+        private void ExitMenuItem_Click(object sender, EventArgs e)
+        {
+            // 点击退出菜单项时，关闭应用程序
+            notifyIcon.Visible = false;
+            Application.Exit();
+        }
+
+        private void NotifyIcon_DoubleClick(object sender, EventArgs e)
+        {
+            // 双击系统托盘图标时，显示窗口
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.TopMost = true;
+            this.Show();
+            this.Activate();
+            this.TopMost = false;
+        }
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {
+            // 监听窗体大小变化，最小化窗体时隐藏到系统托盘
+            if (this.WindowState == FormWindowState.Minimized && !this.MinimizeBox)
+            {
+                this.WindowState = FormWindowState.Normal;
+            }
         }
     }
 }
