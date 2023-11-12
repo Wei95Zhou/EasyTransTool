@@ -55,7 +55,7 @@
             // filePathSel
             // 
             this.filePathSel.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.filePathSel.Location = new System.Drawing.Point(587, 68);
+            this.filePathSel.Location = new System.Drawing.Point(554, 38);
             this.filePathSel.Name = "filePathSel";
             this.filePathSel.Size = new System.Drawing.Size(81, 23);
             this.filePathSel.TabIndex = 2;
@@ -68,7 +68,7 @@
             this.filePath.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.filePath.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.filePath.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.filePath.Location = new System.Drawing.Point(181, 68);
+            this.filePath.Location = new System.Drawing.Point(148, 38);
             this.filePath.Name = "filePath";
             this.filePath.Size = new System.Drawing.Size(400, 23);
             this.filePath.TabIndex = 1;
@@ -78,7 +78,7 @@
             // 
             this.label1.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label1.Location = new System.Drawing.Point(95, 68);
+            this.label1.Location = new System.Drawing.Point(62, 38);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(80, 23);
             this.label1.TabIndex = 2;
@@ -88,7 +88,7 @@
             // uploadButton
             // 
             this.uploadButton.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uploadButton.Location = new System.Drawing.Point(587, 296);
+            this.uploadButton.Location = new System.Drawing.Point(554, 266);
             this.uploadButton.Name = "uploadButton";
             this.uploadButton.Size = new System.Drawing.Size(81, 23);
             this.uploadButton.TabIndex = 13;
@@ -100,7 +100,7 @@
             // 
             this.label2.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label2.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label2.Location = new System.Drawing.Point(95, 106);
+            this.label2.Location = new System.Drawing.Point(62, 76);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(80, 23);
             this.label2.TabIndex = 4;
@@ -112,7 +112,7 @@
             // 
             this.label4.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label4.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label4.Location = new System.Drawing.Point(95, 144);
+            this.label4.Location = new System.Drawing.Point(62, 114);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(80, 23);
             this.label4.TabIndex = 7;
@@ -125,7 +125,7 @@
             this.TypeSelBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.TypeSelBox.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.TypeSelBox.FormattingEnabled = true;
-            this.TypeSelBox.Location = new System.Drawing.Point(181, 105);
+            this.TypeSelBox.Location = new System.Drawing.Point(148, 75);
             this.TypeSelBox.Name = "TypeSelBox";
             this.TypeSelBox.Size = new System.Drawing.Size(400, 24);
             this.TypeSelBox.TabIndex = 3;
@@ -135,7 +135,7 @@
             // 
             this.label3.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label3.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label3.Location = new System.Drawing.Point(95, 220);
+            this.label3.Location = new System.Drawing.Point(62, 190);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(80, 23);
             this.label3.TabIndex = 10;
@@ -147,7 +147,7 @@
             this.DuIpComboBox.AllowDrop = true;
             this.DuIpComboBox.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.DuIpComboBox.FormattingEnabled = true;
-            this.DuIpComboBox.Location = new System.Drawing.Point(181, 143);
+            this.DuIpComboBox.Location = new System.Drawing.Point(148, 113);
             this.DuIpComboBox.Name = "DuIpComboBox";
             this.DuIpComboBox.Size = new System.Drawing.Size(400, 24);
             this.DuIpComboBox.TabIndex = 4;
@@ -158,7 +158,7 @@
             this.RuIpComboBox.AllowDrop = true;
             this.RuIpComboBox.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.RuIpComboBox.FormattingEnabled = true;
-            this.RuIpComboBox.Location = new System.Drawing.Point(181, 219);
+            this.RuIpComboBox.Location = new System.Drawing.Point(148, 189);
             this.RuIpComboBox.Name = "RuIpComboBox";
             this.RuIpComboBox.Size = new System.Drawing.Size(400, 24);
             this.RuIpComboBox.TabIndex = 8;
@@ -167,7 +167,7 @@
             // duIpDelButton
             // 
             this.duIpDelButton.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.duIpDelButton.Location = new System.Drawing.Point(587, 144);
+            this.duIpDelButton.Location = new System.Drawing.Point(554, 114);
             this.duIpDelButton.Name = "duIpDelButton";
             this.duIpDelButton.Size = new System.Drawing.Size(81, 23);
             this.duIpDelButton.TabIndex = 5;
@@ -178,7 +178,7 @@
             // ruIpDelButton
             // 
             this.ruIpDelButton.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ruIpDelButton.Location = new System.Drawing.Point(587, 220);
+            this.ruIpDelButton.Location = new System.Drawing.Point(554, 190);
             this.ruIpDelButton.Name = "ruIpDelButton";
             this.ruIpDelButton.Size = new System.Drawing.Size(81, 23);
             this.ruIpDelButton.TabIndex = 9;
@@ -189,7 +189,7 @@
             // ensfDelButton
             // 
             this.ensfDelButton.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ensfDelButton.Location = new System.Drawing.Point(587, 258);
+            this.ensfDelButton.Location = new System.Drawing.Point(554, 228);
             this.ensfDelButton.Name = "ensfDelButton";
             this.ensfDelButton.Size = new System.Drawing.Size(81, 23);
             this.ensfDelButton.TabIndex = 11;
@@ -202,7 +202,7 @@
             this.EnsfComboBox.AllowDrop = true;
             this.EnsfComboBox.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.EnsfComboBox.FormattingEnabled = true;
-            this.EnsfComboBox.Location = new System.Drawing.Point(181, 257);
+            this.EnsfComboBox.Location = new System.Drawing.Point(148, 227);
             this.EnsfComboBox.Name = "EnsfComboBox";
             this.EnsfComboBox.Size = new System.Drawing.Size(400, 24);
             this.EnsfComboBox.TabIndex = 10;
@@ -211,7 +211,7 @@
             // 
             this.label5.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label5.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label5.Location = new System.Drawing.Point(95, 258);
+            this.label5.Location = new System.Drawing.Point(62, 228);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(80, 23);
             this.label5.TabIndex = 13;
@@ -222,7 +222,7 @@
             // fsuIpDelButton
             // 
             this.fsuIpDelButton.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.fsuIpDelButton.Location = new System.Drawing.Point(587, 182);
+            this.fsuIpDelButton.Location = new System.Drawing.Point(554, 152);
             this.fsuIpDelButton.Name = "fsuIpDelButton";
             this.fsuIpDelButton.Size = new System.Drawing.Size(81, 23);
             this.fsuIpDelButton.TabIndex = 7;
@@ -235,7 +235,7 @@
             this.FsuIpComboBox.AllowDrop = true;
             this.FsuIpComboBox.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FsuIpComboBox.FormattingEnabled = true;
-            this.FsuIpComboBox.Location = new System.Drawing.Point(181, 181);
+            this.FsuIpComboBox.Location = new System.Drawing.Point(148, 151);
             this.FsuIpComboBox.Name = "FsuIpComboBox";
             this.FsuIpComboBox.Size = new System.Drawing.Size(400, 24);
             this.FsuIpComboBox.TabIndex = 6;
@@ -244,7 +244,7 @@
             // 
             this.label6.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label6.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label6.Location = new System.Drawing.Point(95, 182);
+            this.label6.Location = new System.Drawing.Point(62, 152);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(80, 23);
             this.label6.TabIndex = 16;
@@ -256,7 +256,7 @@
             this.CmdWindow.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.CmdWindow.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.CmdWindow.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.CmdWindow.Location = new System.Drawing.Point(181, 296);
+            this.CmdWindow.Location = new System.Drawing.Point(148, 266);
             this.CmdWindow.Name = "CmdWindow";
             this.CmdWindow.Size = new System.Drawing.Size(400, 23);
             this.CmdWindow.TabIndex = 12;
@@ -270,7 +270,7 @@
             // updateButton
             // 
             this.updateButton.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.updateButton.Location = new System.Drawing.Point(587, 334);
+            this.updateButton.Location = new System.Drawing.Point(554, 304);
             this.updateButton.Name = "updateButton";
             this.updateButton.Size = new System.Drawing.Size(81, 23);
             this.updateButton.TabIndex = 14;
@@ -280,18 +280,19 @@
             // 
             // label7
             // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(523, 415);
+            this.label7.Location = new System.Drawing.Point(555, 350);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(257, 12);
+            this.label7.Size = new System.Drawing.Size(137, 12);
             this.label7.TabIndex = 0;
-            this.label7.Text = "发现Bug请告知FW周唯，我们一起完善这个工具~";
+            this.label7.Text = "发现Bug麻烦告知FW周唯~";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(792, 436);
+            this.ClientSize = new System.Drawing.Size(704, 371);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.updateButton);
             this.Controls.Add(this.CmdWindow);
@@ -313,6 +314,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.filePath);
             this.Controls.Add(this.filePathSel);
+            this.MinimumSize = new System.Drawing.Size(720, 410);
             this.Name = "Form1";
             this.Text = "EasyTransTool-V1.0(Developed by wei.zhou@FW)";
             this.Load += new System.EventHandler(this.Form1_Load);

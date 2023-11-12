@@ -82,8 +82,15 @@ namespace ExtPkgUpdateTool
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 string selectedFilePath = fileDialog.FileName;
-                filePath.Text = selectedFilePath;
-                filePathOp.SaveLastSelectedPath(selectedFilePath);
+                if(filePathOp.FilePathValid(selectedFilePath))
+                {
+                    filePath.Text = selectedFilePath;
+                    filePathOp.SaveLastSelectedPath(selectedFilePath);
+                }
+                else
+                {
+                    MessageBox.Show("文件路径存在不支持的字符，仅支持A~Za~z-_.:/\\");
+                }
             }
         }
 
@@ -689,6 +696,7 @@ namespace FilePathManagement
         {
             string configFilePath = "./config/SelPath.cfg";
             File.WriteAllText(configFilePath, selectedFilePath);
+            
         }
         public string getSelFileName()
         {
@@ -702,6 +710,11 @@ namespace FilePathManagement
             {
                 return null;
             }
+        }
+        public bool FilePathValid(string selectedFilePath)
+        {
+            string pattern = @"^[a-zA-Z0-9._:/\\-]+$";
+            return Regex.IsMatch(selectedFilePath, pattern);
         }
     }
 }
