@@ -213,11 +213,11 @@ namespace ExtPkgUpdateTool
             var testUser = usrMng.GetUserByType("testUser");
             var user1168fw = usrMng.GetUserByType("1168fw");
 
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(), testUser.Username, testUser.Password);
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(), user1168fw.Username, user1168fw.Password);
+            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(), testUser.Username, testUser.Password);
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(), user1168fw.Username, user1168fw.Password);
 
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(), testUser.Username, testUser.Password);
-            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(), user1168fw.Username, user1168fw.Password);
+            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(), testUser.Username, testUser.Password);
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(), user1168fw.Username, user1168fw.Password);
 
             //string filePath = "/home/zw/" + Environment.UserName + "/";
             string filePath = "/home/" + user1168fw.Username + "/tmp/" + Environment.UserName + "/";

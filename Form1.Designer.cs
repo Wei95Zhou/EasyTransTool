@@ -316,7 +316,7 @@
             this.Controls.Add(this.filePathSel);
             this.MinimumSize = new System.Drawing.Size(720, 410);
             this.Name = "Form1";
-            this.Text = "EasyTransTool-V1.0(Developed by wei.zhou@FW)";
+            this.Text = "EasyTransTool-V1.1.1(Developed by wei.zhou@FW)";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
