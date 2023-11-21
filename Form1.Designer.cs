@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.filePathSel = new System.Windows.Forms.Button();
             this.filePath = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -49,7 +50,9 @@
             this.CmdWindow = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.updateButton = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
+            this.newVerRelPath = new System.Windows.Forms.TextBox();
+            this.hintLabel = new System.Windows.Forms.Label();
+            this.updateChkTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // filePathSel
@@ -278,22 +281,41 @@
             this.updateButton.UseVisualStyleBackColor = true;
             this.updateButton.Click += new System.EventHandler(this.updateButton_Click);
             // 
-            // label7
+            // newVerRelPath
             // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(555, 350);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(137, 12);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "发现Bug麻烦告知FW周唯~";
+            this.newVerRelPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.newVerRelPath.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.newVerRelPath.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.newVerRelPath.Location = new System.Drawing.Point(65, 354);
+            this.newVerRelPath.Name = "newVerRelPath";
+            this.newVerRelPath.ReadOnly = true;
+            this.newVerRelPath.Size = new System.Drawing.Size(624, 14);
+            this.newVerRelPath.TabIndex = 18;
+            this.newVerRelPath.Text = "-";
+            this.newVerRelPath.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // hintLabel
+            // 
+            this.hintLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.hintLabel.AutoSize = true;
+            this.hintLabel.Location = new System.Drawing.Point(465, 338);
+            this.hintLabel.Name = "hintLabel";
+            this.hintLabel.Size = new System.Drawing.Size(227, 12);
+            this.hintLabel.TabIndex = 19;
+            this.hintLabel.Text = "发现Bug请告知FW周唯~ 新版本发布位置：";
+            // 
+            // updateChkTimer
+            // 
+            this.updateChkTimer.Interval = 5000;
+            this.updateChkTimer.Tick += new System.EventHandler(this.UpdateCheckMenuItem_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 371);
-            this.Controls.Add(this.label7);
+            this.Controls.Add(this.hintLabel);
+            this.Controls.Add(this.newVerRelPath);
             this.Controls.Add(this.updateButton);
             this.Controls.Add(this.CmdWindow);
             this.Controls.Add(this.fsuIpDelButton);
@@ -346,7 +368,9 @@
         private System.Windows.Forms.Label CmdWindow;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button updateButton;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox newVerRelPath;
+        private System.Windows.Forms.Label hintLabel;
+        private System.Windows.Forms.Timer updateChkTimer;
     }
 }
 
