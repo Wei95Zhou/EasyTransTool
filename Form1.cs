@@ -11,7 +11,7 @@ using System.IO;
 using Renci.SshNet;
 using System.Net;
 using IPAddressManagement;
-using FilePathManagement;
+using FileManagement;
 using RemoteManagement;
 using UserManagement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
@@ -31,7 +31,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "1.2.0";
+        private string sRelVer = "1.2.2";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -43,6 +43,7 @@ namespace ExtPkgUpdateTool
         FilePathOp newVerPathOp = new FilePathOp("NewVerPath", "./config/Path.cfg");
         FilePathOp newVerChkPathOp = new FilePathOp("NewVerChkPath", "./config/Path.cfg");
         UserManager usrMng = new UserManager("./config/UserMng.cfg");
+        FileOp logFile = new FileOp("./log/Script.log");
         //MainForm mainForm = new MainForm();
         public Form1()
         {
@@ -94,14 +95,14 @@ namespace ExtPkgUpdateTool
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 string selectedFilePath = fileDialog.FileName;
-                if(filePathOp.FilePathValid(selectedFilePath))
+                if(filePathOp.FileNameValid(selectedFilePath))
                 {
                     filePath.Text = selectedFilePath;
                     filePathOp.SavePath(selectedFilePath);
                 }
                 else
                 {
-                    MessageBox.Show("文件路径存在不支持的字符，仅支持A~Za~z-_.:/\\");
+                    MessageBox.Show("文件名存在不支持的字符，仅支持A~Za~z-_.:");
                 }
             }
         }
@@ -267,6 +268,7 @@ namespace ExtPkgUpdateTool
                                 CmdWindow.Text = line;
                                 CmdWindow.Refresh();
                                 Console.WriteLine(line);
+                                logFile.AppendToFile(line);
                                 if (line.StartsWith("sendln "))
                                 {
                                     string command = GetCommand(line);
@@ -517,7 +519,7 @@ namespace ExtPkgUpdateTool
             if (true == serverSshOp.Connect())
             {
                 string sLatestVer = serverSshOp.RunCommand("cat " + newVerChkPathOp.GetPath());
-                if ((!string.IsNullOrEmpty(sLatestVer)) && (!(sRelVer == sLatestVer)))
+                if ((!string.IsNullOrEmpty(sLatestVer)) && (!(string.Equals(sRelVer, sLatestVer))))
                 {
                     bNewVerRel = true;
                 }
@@ -763,7 +765,7 @@ namespace IPAddressManagement
     }
 }
 
-namespace FilePathManagement
+namespace FileManagement
 {
     public class FilePathOp
     {
@@ -837,6 +839,124 @@ namespace FilePathManagement
         {
             string pattern = @"^[a-zA-Z0-9._:/\\-]+$";
             return Regex.IsMatch(selectedFilePath, pattern);
+        }
+        public bool FileNameValid(string selectedFilePath)
+        {
+            int lastIndex = selectedFilePath.LastIndexOf('\\');
+            if (lastIndex >= 0)
+            {
+                string pattern = @"^[a-zA-Z0-9._:-]+$";
+                return Regex.IsMatch(selectedFilePath.Substring(lastIndex + 1), pattern);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    public class FileOp
+    {
+        private string sFilePath;
+        public FileOp(string sFilePath)
+        {
+            this.sFilePath = sFilePath;
+            CreateFile();
+        }
+        // 读取文件内容
+        public string ReadFile()
+        {
+            try
+            {
+                if (File.Exists(sFilePath))
+                {
+                    return File.ReadAllText(sFilePath);
+                }
+                else
+                {
+                    return "File does not exist!";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error while reading the file: " + ex.Message;
+            }
+        }
+
+        // 写入内容到文件
+        public bool WriteToFile(string filePath, string content)
+        {
+            try
+            {
+                File.WriteAllText(filePath, content);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while writing to the file: " + ex.Message);
+                return false;
+            }
+        }
+
+        // 追加内容到文件
+        public bool AppendToFile(string content)
+        {
+            try
+            {
+                File.AppendAllText(sFilePath, content);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while appending to the file: " + ex.Message);
+                return false;
+            }
+        }
+
+        // 创建文件
+        public bool CreateFile()
+        {
+            try
+            {
+                if (!File.Exists(sFilePath))
+                {
+                    File.Create(sFilePath).Close();
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("File already exists!");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while creating the file: " + ex.Message);
+                return false;
+            }
+        }
+
+        // 删除文件
+        public bool DeleteFile()
+        {
+            try
+            {
+                if (File.Exists(sFilePath))
+                {
+                    File.Delete(sFilePath);
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("File does not exist!");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while deleting the file: " + ex.Message);
+                return false;
+            }
         }
     }
 }
