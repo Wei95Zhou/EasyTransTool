@@ -31,7 +31,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "1.2.2";
+        private string sRelVer = "1.2.3";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -268,7 +268,8 @@ namespace ExtPkgUpdateTool
                                 CmdWindow.Text = line;
                                 CmdWindow.Refresh();
                                 Console.WriteLine(line);
-                                logFile.AppendToFile(line);
+                                string timestamp = DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]");
+                                logFile.AppendToFile(timestamp + line);
                                 if (line.StartsWith("sendln "))
                                 {
                                     string command = GetCommand(line);
@@ -284,7 +285,7 @@ namespace ExtPkgUpdateTool
                                     string expectedString = GetExpectedString(line);
                                     if (false == serverSshOp.WaitForOutput_Timer(expectedString))
                                     {
-                                        MessageBox.Show("有其他用户正在同时升级，请稍后再试！");
+                                        MessageBox.Show("上传失败，请检查IP配置！");
                                         CmdWindow.Text = "";
                                         break;
                                     }
@@ -502,6 +503,9 @@ namespace ExtPkgUpdateTool
 
             if (true == NewVerCheck())
             {
+                this.WindowState = FormWindowState.Normal;
+                this.ShowInTaskbar = true;
+                this.Show();
                 MessageBox.Show("有新版本！请去主界面下方位置获取~");
             }
             else
@@ -514,12 +518,13 @@ namespace ExtPkgUpdateTool
         {
             bool bNewVerRel = false;
             var user1168fw = usrMng.GetUserByType("1168fw");
+            var testUser = usrMng.GetUserByType("testUser");
             SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
-            //string filePath = "/home/" + user1168fw.Username + "/tmp/EasyTransToolRelVer";
+            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
             if (true == serverSshOp.Connect())
             {
                 string sLatestVer = serverSshOp.RunCommand("cat " + newVerChkPathOp.GetPath());
-                if ((!string.IsNullOrEmpty(sLatestVer)) && (!(string.Equals(sRelVer, sLatestVer))))
+                if ((!string.IsNullOrEmpty(sLatestVer)) && !(0 == string.Compare(sRelVer, sLatestVer.Substring(0, sRelVer.Length))))
                 {
                     bNewVerRel = true;
                 }
