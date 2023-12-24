@@ -143,6 +143,19 @@ namespace ExtPkgUpdateTool
                 return;
             }
             upload_update_Core(sender, e);
+            //string updateFile = "/tmp/" + filePathOp.getSelFileName();
+            if (string.Equals("vDU-FSU-RU", TypeSelBox.Text))
+            {
+                Clipboard.SetText("SWM_PkgUpdate " + "\"/tmp/" + filePathOp.getSelFileName() + "\"");
+            }
+            else if (string.Equals("CDU-RU", TypeSelBox.Text))
+            {
+                Clipboard.SetText("SWM_PkgUpdate " + "\"/tmp/" + filePathOp.getSelFileName() + "\"");
+            }
+            else if (string.Equals("vDU-ORU", TypeSelBox.Text))
+            {
+                Clipboard.SetText("SWM_OranPkgUpdate " + "\"/tmp/" + filePathOp.getSelFileName() + "\"");
+            }
         }
 
         private void updateButton_Click(object sender, EventArgs e)
