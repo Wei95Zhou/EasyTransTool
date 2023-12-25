@@ -31,7 +31,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "1.2.3";
+        private string sRelVer = "1.2.5";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -269,6 +269,7 @@ namespace ExtPkgUpdateTool
                         using (StreamReader reader = new StreamReader(scriptPath))
                         {
                             string line;
+                            logFile.ClearFile();
                             while ((line = reader.ReadLine()) != null)
                             {
                                 line = line.Replace("USER_PATH", Environment.UserName);
@@ -282,7 +283,7 @@ namespace ExtPkgUpdateTool
                                 CmdWindow.Refresh();
                                 Console.WriteLine(line);
                                 string timestamp = DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]");
-                                logFile.AppendToFile(timestamp + line);
+                                logFile.AppendToFile(timestamp + line + "\n");
                                 if (line.StartsWith("sendln "))
                                 {
                                     string command = GetCommand(line);
@@ -976,6 +977,28 @@ namespace FileManagement
                 return false;
             }
         }
+
+        public bool ClearFile()
+        {
+            try
+            {
+                if (File.Exists(sFilePath))
+                {
+                    File.WriteAllText(sFilePath, string.Empty);
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("File does not exist!");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while clearing the file: " + ex.Message);
+                return false;
+            }
+        }
     }
 }
 
@@ -1104,7 +1127,6 @@ namespace RemoteManagement
                         return true;
                     }
                 }
-                return false;
             }
             catch (Exception ex)
             {
