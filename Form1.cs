@@ -31,7 +31,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "1.2.5";
+        private string sRelVer = "1.2.6";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -233,7 +233,7 @@ namespace ExtPkgUpdateTool
                 ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
                 ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
             }
-
+            
             // Start update procedure
             // 1.Put file to 116.8 server
             var testUser = usrMng.GetUserByType("testUser");
@@ -815,7 +815,7 @@ namespace FileManagement
                 string[] parts = line.Split(' ');
                 if (parts.Length >= 2 && parts[0] == sPathType)
                 {
-                    lastSelectedPath = parts[1];
+                    lastSelectedPath = line.Substring(line.IndexOf(' ') + 1);
                 }
             }
             return lastSelectedPath; // or you can throw an exception to indicate an invalid index
