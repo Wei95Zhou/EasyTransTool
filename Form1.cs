@@ -20,6 +20,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolBar;
 using System.Reflection;
+using System.Diagnostics.Eventing.Reader;
+using System.Runtime.Remoting.Messaging;
 
 namespace ExtPkgUpdateTool
 {
@@ -31,17 +33,20 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "1.2.6";
+        private string sRelVer = "2.0.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
         IPAddressOp ensfOp = new IPAddressOp("ensf", "./config/IpDataSet.cfg");
         IPAddressOp fsuIpOp = new IPAddressOp("FsuIp", "./config/IpDataSet.cfg");
         IPAddressOp serverIpOp = new IPAddressOp("ServerIp", "./config/IpDataSet.cfg");
-        DevTypeOp devTypeOp = new DevTypeOp("./config/DevType.cfg");
-        FilePathOp filePathOp = new FilePathOp("FilePath", "./config/Path.cfg");
-        FilePathOp newVerPathOp = new FilePathOp("NewVerPath", "./config/Path.cfg");
-        FilePathOp newVerChkPathOp = new FilePathOp("NewVerChkPath", "./config/Path.cfg");
+        TypeOp transModeTypeOp = new TypeOp("TransModeType", "PC->RU", "./config/Type.cfg");
+        TypeOp devTypeOp = new TypeOp("LinkType", "CDU-RU", "./config/Type.cfg");
+        FilePathOp uploadFilePathOp = new FilePathOp("UploadFilePath", "C:", "./config/Path.cfg");
+        FilePathOp dlFileSavePathOp = new FilePathOp("DownloadFileSavePath", "C:", "./config/Path.cfg");
+        FilePathOp dlFilPathInRuOp = new FilePathOp("FilePathInRu", "/tmp/", "./config/Path.cfg");
+        FilePathOp newVerPathOp = new FilePathOp("NewVerPath", "C:", "./config/Path.cfg");
+        FilePathOp newVerChkPathOp = new FilePathOp("NewVerChkPath", "C:", "./config/Path.cfg");
         UserManager usrMng = new UserManager("./config/UserMng.cfg");
         FileOp logFile = new FileOp("./log/Script.log");
         //MainForm mainForm = new MainForm();
@@ -49,16 +54,24 @@ namespace ExtPkgUpdateTool
         {
             InitializeComponent();
             InitializeSystemTray();
+            //Title Init
             lastClosingTime = DateTime.Now;
             this.Text = "EasyTransTool-V" + sRelVer + "(Developed by wei.zhou@FW)";
+            //Show new version release path in form
             newVerRelPath.Text = newVerPathOp.GetPath();
 
-            filePath.Text = filePathOp.GetPath();
+            //Init trans type select box
+            //Init file path label
+            TransModeSelBox.Items.Add("PC->RU");
+            TransModeSelBox.Items.Add("RU->PC");
+            TransModeSelBox.SelectedItem = transModeTypeOp.GetType();
+            TransModeSwitch();
 
+            //Init link type select box
             TypeSelBox.Items.Add("vDU-ORU");
             TypeSelBox.Items.Add("CDU-RU");
             TypeSelBox.Items.Add("vDU-FSU-RU");
-            TypeSelBox.SelectedIndex = devTypeOp.GetLinkType();
+            TypeSelBox.SelectedItem = devTypeOp.GetType();
 
             ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
             ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
@@ -87,22 +100,41 @@ namespace ExtPkgUpdateTool
 
         private void filePathSel_Click(object sender, EventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Title = "选择要上传或升级的文件";
-            fileDialog.Filter = "所有文件|*.*|EXT Files(*.EXT)|*.EXT";
-            fileDialog.InitialDirectory = filePathOp.GetPath();
-
-            if (fileDialog.ShowDialog() == DialogResult.OK)
+            if (string.Equals("PC->RU", TransModeSelBox.Text))
             {
-                string selectedFilePath = fileDialog.FileName;
-                if(filePathOp.FileNameValid(selectedFilePath))
+                OpenFileDialog fileDialog = new OpenFileDialog();
+                fileDialog.Title = "选择要上传或升级的文件";
+                fileDialog.Filter = "所有文件|*.*";
+                fileDialog.InitialDirectory = uploadFilePathOp.GetPath();
+
+                if (fileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    filePath.Text = selectedFilePath;
-                    filePathOp.SavePath(selectedFilePath);
+                    string selectedFilePath = fileDialog.FileName;
+                    if (uploadFilePathOp.FileNameValid(selectedFilePath))
+                    {
+                        filePath.Text = selectedFilePath;
+                        uploadFilePathOp.SavePath(selectedFilePath);
+                    }
+                    else
+                    {
+                        MessageBox.Show("文件名存在不支持的字符，仅支持A~Za~z-_.:");
+                    }
                 }
-                else
+            }
+            else if (string.Equals("RU->PC", TransModeSelBox.Text))
+            {
+                using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
                 {
-                    MessageBox.Show("文件名存在不支持的字符，仅支持A~Za~z-_.:");
+                    folderBrowserDialog.Description = "选择保存的路径";
+                    folderBrowserDialog.SelectedPath = dlFileSavePathOp.GetPath();
+
+                    DialogResult result = folderBrowserDialog.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                    {
+                        filePath.Text = folderBrowserDialog.SelectedPath;
+                        dlFileSavePathOp.SavePath(folderBrowserDialog.SelectedPath);
+                    }
                 }
             }
         }
@@ -125,98 +157,95 @@ namespace ExtPkgUpdateTool
 
         private void uploadButton_Click(object sender, EventArgs e)
         {
-            if (string.Equals("vDU-FSU-RU", TypeSelBox.Text))
-            {
-                scriptPath = "./script/vduFsuRuUpload.script";
-            }
-            else if (string.Equals("CDU-RU", TypeSelBox.Text))
-            {
-                scriptPath = "./script/cduRuUpload.script";
-            }
-            else if (string.Equals("vDU-ORU", TypeSelBox.Text))
-            {
-                scriptPath = "./script/vduOruUpload.script";
-            }
-            else
-            {
-                MessageBox.Show("无效的连接类型！");
-                return;
-            }
-            upload_update_Core(sender, e);
-            //string updateFile = "/tmp/" + filePathOp.getSelFileName();
-            if (string.Equals("vDU-FSU-RU", TypeSelBox.Text))
-            {
-                Clipboard.SetText("SWM_PkgUpdate " + "\"/tmp/" + filePathOp.getSelFileName() + "\"");
-            }
-            else if (string.Equals("CDU-RU", TypeSelBox.Text))
-            {
-                Clipboard.SetText("SWM_PkgUpdate " + "\"/tmp/" + filePathOp.getSelFileName() + "\"");
-            }
-            else if (string.Equals("vDU-ORU", TypeSelBox.Text))
-            {
-                Clipboard.SetText("SWM_OranPkgUpdate " + "\"/tmp/" + filePathOp.getSelFileName() + "\"");
-            }
-        }
-
-        private void updateButton_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("功能开发中！");
-            return;
-            if (string.Equals("vDU-FSU-RU", TypeSelBox.Text))
-            {
-                scriptPath = "./script/vduFsuRuUpdate.script";
-            }
-            else if (string.Equals("CDU-RU", TypeSelBox.Text))
-            {
-                scriptPath = "./script/cduRuUpdate.script";
-            }
-            else if (string.Equals("vDU-ORU", TypeSelBox.Text))
-            {
-                scriptPath = "./script/vduOruUpdate.script";
-            }
-            else
-            {
-                MessageBox.Show("无效的连接类型！");
-                return;
-            }
-            upload_update_Core(sender, e);
-        }
-
-        private void upload_update_Core(object sender, EventArgs e)
-        {
             // Save the IP address and refresh the ComboBox
             string duIpAddress = DuIpComboBox.Text;
             string ruIpAddress = RuIpComboBox.Text;
             string fsuIpAddress = FsuIpComboBox.Text;
             string ensfAddress = EnsfComboBox.Text;
 
-            if (!File.Exists(filePathOp.GetPath()))
+            scriptPath = fileTransScriptPreCheck();
+            if (scriptPath == String.Empty) return;
+            if (!fileTransIpPreCheck(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress)) return;
+            if (!fileTransPathPreCheck()) return;
+            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            {
+                upload_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
+                return;
+            }
+            else if(string.Equals("RU->PC", TransModeSelBox.Text))
+            {
+                download_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
+                return;
+            }
+        }
+
+        private string fileTransScriptPreCheck()
+        {
+            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            {
+                if (string.Equals("vDU-FSU-RU", TypeSelBox.Text)) scriptPath = "./script/vduFsuRuUpload.script";
+                else if (string.Equals("CDU-RU", TypeSelBox.Text)) scriptPath = "./script/cduRuUpload.script";
+                else if (string.Equals("vDU-ORU", TypeSelBox.Text)) scriptPath = "./script/vduOruUpload.script";
+                else
+                {
+                    MessageBox.Show("无效的连接类型！");
+                    return String.Empty;
+                }
+            }
+            else if (string.Equals("RU->PC", TransModeSelBox.Text))
+            {
+                if (string.Equals("vDU-FSU-RU", TypeSelBox.Text)) scriptPath = "./script/vduFsuRuDownload.script";
+                else if (string.Equals("CDU-RU", TypeSelBox.Text)) scriptPath = "./script/cduRuDownload.script";
+                else if (string.Equals("vDU-ORU", TypeSelBox.Text)) scriptPath = "./script/vduOruDownload.script";
+                else
+                {
+                    MessageBox.Show("无效的连接类型！");
+                    return String.Empty;
+                }
+            }
+            else
+            {
+                MessageBox.Show("无效的传输类型！");
+                return String.Empty;
+            }
+            return scriptPath;
+        }
+
+        private bool fileTransIpPreCheck(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
+        {
+            if (!File.Exists(uploadFilePathOp.GetPath()))
             {
                 MessageBox.Show("本地文件不存在！");
-                return;
+                return false;
             }
             if (!File.Exists(scriptPath))
             {
                 MessageBox.Show("升级脚本不存在！");
-                return;
+                return false;
             }
             if (!duIpOp.IsIPAddressValid(duIpAddress))
             {
                 MessageBox.Show("DU IP 地址无效！");
-                return;
+                return false;
             }
             else if (!ruIpOp.IsIPAddressValid(ruIpAddress))
             {
                 MessageBox.Show("RU IP 地址无效！");
-                return;
+                return false;
             }
             else if ((!string.Equals("", fsuIpAddress)) && (!fsuIpOp.IsIPAddressValid(fsuIpAddress)))
             {
                 MessageBox.Show("FSU IP 地址无效！");
-                return;
+                return false;
             }
             else
             {
+                devTypeOp.SaveType(TypeSelBox.SelectedItem.ToString());
+                transModeTypeOp.SaveType(TransModeSelBox.SelectedItem.ToString());
+                if (true == dlFileName.Enabled)
+                {
+                    dlFilPathInRuOp.SavePath(dlFileName.Text);
+                }
                 duIpOp.SaveIPAddressToFile(TypeSelBox.Text, duIpAddress);
                 ruIpOp.SaveIPAddressToFile(TypeSelBox.Text, ruIpAddress);
                 if (!string.Equals("", fsuIpAddress))
@@ -229,11 +258,37 @@ namespace ExtPkgUpdateTool
                     ensfOp.SaveIPAddressToFile(TypeSelBox.Text, ensfAddress);
                     ComboBox_Refresh(EnsfComboBox, ensfOp, ensfOp.GetIPAddressCount(TypeSelBox.Text) - 1, ensfDelButton);
                 }
-                devTypeOp.SaveDevType(TypeSelBox.SelectedIndex);
                 ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
                 ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
+                return true;
             }
-            
+        }
+
+        private bool fileTransPathPreCheck()
+        {
+            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            {
+                if (!File.Exists(uploadFilePathOp.GetPath()))
+                {
+                    MessageBox.Show("本地文件不存在！");
+                    return false;
+                }
+                return true;
+            }
+            else if (string.Equals("RU->PC", TransModeSelBox.Text))
+            {
+                if (!Directory.Exists(dlFileSavePathOp.GetPath()))
+                {
+                    MessageBox.Show("保存路径不存在！");
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private void upload_update_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
+        {
             // Start update procedure
             // 1.Put file to 116.8 server
             var testUser = usrMng.GetUserByType("testUser");
@@ -247,7 +302,7 @@ namespace ExtPkgUpdateTool
 
             //string filePath = "/home/zw/" + Environment.UserName + "/";
             string filePath = "/home/" + user1168fw.Username + "/tmp/" + Environment.UserName + "/";
-            string fileTempName = filePathOp.getSelFileName() + Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
+            string fileTempName = uploadFilePathOp.getSelFileName() + Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
 
             //每一句命令都需要检查返回值
             if (true == serverSshOp.Connect())
@@ -257,7 +312,9 @@ namespace ExtPkgUpdateTool
             }
             if (true == serverSftpOp.Connect())
             {
-                serverSftpOp.UploadFile(filePathOp.GetPath(), filePath + fileTempName);
+                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), filePath + fileTempName);
+                MessageBox.Show(uploadFilePathOp.GetPath());
+                MessageBox.Show(filePath + fileTempName);
                 serverSftpOp.Disconnect();
             }
             if (true == serverSshOp.Connect())
@@ -270,6 +327,7 @@ namespace ExtPkgUpdateTool
                         {
                             string line;
                             logFile.ClearFile();
+                            logFile.AppendToFile("running " + scriptPath + "\n");
                             while ((line = reader.ReadLine()) != null)
                             {
                                 line = line.Replace("USER_PATH", Environment.UserName);
@@ -278,7 +336,7 @@ namespace ExtPkgUpdateTool
                                 line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
                                 line = line.Replace("RU_IP_ADDR", ruIpAddress);
                                 line = line.Replace("FILE_TRANS_NAME", fileTempName);
-                                line = line.Replace("FILE_NAME", filePathOp.getSelFileName());
+                                line = line.Replace("FILE_NAME", uploadFilePathOp.getSelFileName());
                                 CmdWindow.Text = line;
                                 CmdWindow.Refresh();
                                 Console.WriteLine(line);
@@ -317,6 +375,122 @@ namespace ExtPkgUpdateTool
                     }
                 }
                 serverSshOp.RunCommand("rm " + filePath + fileTempName);
+                serverSshOp.Disconnect();
+            }
+        }
+
+        private void download_update_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
+        {
+            // Start update procedure
+            // 1.Put file to 116.8 server
+            var testUser = usrMng.GetUserByType("testUser");
+            var user1168fw = usrMng.GetUserByType("1168fw");
+
+            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
+
+            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
+
+            //string filePathInServer = "/tmp/";
+            string filePathInServer = "/home/" + user1168fw.Username + "/tmp/" + Environment.UserName + "/";
+            string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
+            string tempFilePathInServer = filePathInServer + timeStamp;
+            string userInputFilePathInRU = dlFilPathInRuOp.GetPath();
+            string filePathInRU;
+            string fileNameInRU;
+
+            if (dlFilPathInRuOp.GetPath().StartsWith("/"))
+            {
+                int lastIndex = userInputFilePathInRU.LastIndexOf('/');
+                if (lastIndex >= 0)
+                {
+                    filePathInRU = userInputFilePathInRU.Substring(0, lastIndex);
+                    fileNameInRU = userInputFilePathInRU.Substring(lastIndex + 1);
+                }
+                else
+                {
+                    MessageBox.Show("下载失败，请检查要获取的文件路径是否正确！");
+                    CmdWindow.Text = "";
+                    return;
+                }
+            }
+            else
+            {
+                filePathInRU = "/tmp";
+                fileNameInRU = userInputFilePathInRU;
+            }
+
+            //每一句命令都需要检查返回值
+            if (true == serverSshOp.Connect())
+            {
+                serverSshOp.RunCommand("mkdir -p " + tempFilePathInServer);
+                if (true == serverSshOp.StartShell())
+                {
+                    try
+                    {
+                        using (StreamReader reader = new StreamReader(scriptPath))
+                        {
+                            string line;
+                            logFile.ClearFile();
+                            logFile.AppendToFile("running " + scriptPath + "\n");
+                            while ((line = reader.ReadLine()) != null)
+                            {
+                                line = line.Replace("USER_PATH", Environment.UserName);
+                                line = line.Replace("DU_IP_ADDR", duIpAddress);
+                                line = line.Replace("ENS_F", ensfAddress);
+                                line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
+                                line = line.Replace("RU_IP_ADDR", ruIpAddress);
+                                line = line.Replace("FILE_PATH", filePathInRU);
+                                line = line.Replace("FILE_NAME", fileNameInRU);
+                                line = line.Replace("TIME_STAMP", timeStamp);
+                                CmdWindow.Text = line;
+                                CmdWindow.Refresh();
+                                Console.WriteLine(line);
+                                logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + line + "\n");
+                                if (line.StartsWith("sendln "))
+                                {
+                                    string command = GetCommand(line);
+                                    serverSshOp.ExecuteCommand(command);
+                                }
+                                else if (line.StartsWith("wait "))
+                                {
+                                    string expectedString = GetExpectedString(line);
+                                    serverSshOp.WaitForOutput(expectedString);
+                                }
+                                else if (line.StartsWith("wait_timer "))
+                                {
+                                    string expectedString = GetExpectedString(line);
+                                    if (false == serverSshOp.WaitForOutput_Timer(expectedString))
+                                    {
+                                        MessageBox.Show("下载失败，请检查IP配置！");
+                                        CmdWindow.Text = "";
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid command: " + line);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Failed to read file: " + ex.Message);
+                    }
+                }
+                serverSshOp.Disconnect();
+            }
+            if (true == serverSftpOp.Connect())
+            {
+                //考虑在脚本里实现文件下载过程的调用，这样可以更好进行进度条的控制
+                serverSftpOp.DownloadFile(tempFilePathInServer, dlFileSavePathOp.GetPath());
+                serverSftpOp.Disconnect();
+            }
+            if (true == serverSshOp.Connect())
+            {
+                serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
                 serverSshOp.Disconnect();
             }
         }
@@ -514,7 +688,6 @@ namespace ExtPkgUpdateTool
             /*this.WindowState = FormWindowState.Normal;
             this.ShowInTaskbar = true;
             this.Show();*/
-
             if (true == NewVerCheck())
             {
                 this.WindowState = FormWindowState.Normal;
@@ -532,9 +705,7 @@ namespace ExtPkgUpdateTool
         {
             bool bNewVerRel = false;
             var user1168fw = usrMng.GetUserByType("1168fw");
-            var testUser = usrMng.GetUserByType("testUser");
             SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
             if (true == serverSshOp.Connect())
             {
                 string sLatestVer = serverSshOp.RunCommand("cat " + newVerChkPathOp.GetPath());
@@ -577,6 +748,61 @@ namespace ExtPkgUpdateTool
                 this.WindowState = FormWindowState.Normal;
             }
         }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void TransModeSelBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TransModeSwitch();
+        }
+
+        private void transModeSwitchButton_Click(object sender, EventArgs e)
+        {
+            if (string.Equals("PC->RU", TransModeSelBox.SelectedItem))
+            {
+                TransModeSelBox.SelectedItem = "RU->PC";
+            }
+            else if (string.Equals("RU->PC", TransModeSelBox.SelectedItem))
+            {
+                TransModeSelBox.SelectedItem = "PC->RU";
+            }
+            TransModeSwitch();
+        }
+
+        private void TransModeSwitch()
+        {
+            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            {
+                fielPathLabel.Text = "文件路径";
+                uploadButton.Text = "上传文件";
+                filePathSel.Text = "选择文件";
+                filePath.Text = uploadFilePathOp.GetPath();
+                dlFileName.Enabled = false;
+                dlFileName.Text = String.Empty;
+                fileDlLabel.Enabled = false;
+                dlHintButton.Enabled = false;
+            }
+            else if (string.Equals("RU->PC", TransModeSelBox.Text))
+            {
+                fielPathLabel.Text = "保存路径";
+                uploadButton.Text = "下载文件";
+                filePathSel.Text = "选择路径";
+                filePath.Text = dlFileSavePathOp.GetPath();
+                dlFileName.Enabled = true;
+                dlFileName.Text = dlFilPathInRuOp.GetPath();
+                fileDlLabel.Enabled = true;
+                dlHintButton.Enabled = true;
+            }
+        }
+
+        private void dlHintButton_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("默认获取路径为/tmp/，如输入abc*，将获取/tmp/路径下abc开头的所有文件\n" +
+                "如果输入/home/user/abc，将获取/home/user/路径下的名为abc的文件");
+        }
     }
 }
 
@@ -584,42 +810,64 @@ namespace IPAddressManagement
 {
     //LinkType: 0:vDU-ORU 1:CDU-RU 2:vDU-FSU-RU
     //IpType: 0:DuIp 1:FsuIp 2:RuIp 3:ensf 4:ServerIp
-    public class DevTypeOp
+    public class TypeOp
     {
-        private string sDevTypePath;
-        public DevTypeOp(string sDevTypeFilePath)
+        private string sType;
+        private string sFilePath;
+        private string sDefaultValue;
+        public TypeOp(string sType, string sDefaultValue, string sFilePath)
         {
-            this.sDevTypePath = sDevTypeFilePath;
-            return;
-        }
-        public void SaveDevType(int iDevType)
-        {
-            if (File.Exists(sDevTypePath))
+            this.sType = sType;
+            this.sFilePath = sFilePath;
+            this.sDefaultValue = sDefaultValue;
+            if (!File.Exists(sFilePath))
             {
-                File.WriteAllText(sDevTypePath, iDevType.ToString());
-            }
-            else
-            {
-                // Create a new file and write the number to it
-                using (StreamWriter writer = File.CreateText(sDevTypePath))
+                using (StreamWriter writer = File.CreateText(sFilePath))
                 {
-                    writer.WriteLine(iDevType);
+                    writer.WriteLine(sType + " " + sDefaultValue);
                 }
             }
         }
-        public int GetLinkType()
+        public void SaveType(string sSaveType)
         {
-            if (!File.Exists(sDevTypePath))
+            string sTypeInfo = sType + " " + sSaveType;
+            if (!File.Exists(sFilePath))
             {
-                return 0;
-            }
-            string[] lines = File.ReadAllLines(sDevTypePath);
-            if (lines.Length > 0 && int.TryParse(lines[0], out int Type))
-            {
-                return Type;
+                File.WriteAllText(sFilePath, sTypeInfo);
+                return;
             }
 
-            return 0;
+            string[] lines = File.ReadAllLines(sFilePath);
+            using (StreamWriter writer = new StreamWriter(sFilePath))
+            {
+                foreach (string line in lines)
+                {
+                    if (!line.StartsWith(sType))
+                    {
+                        writer.WriteLine(line);
+                    }
+                }
+                writer.WriteLine(sTypeInfo);
+            }
+        }
+        public string GetType()
+        {
+            string lastSelectedType = sDefaultValue;
+            if (!File.Exists(sFilePath))
+            {
+                return lastSelectedType;
+            }
+            string[] lines = File.ReadAllLines(sFilePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(' ');
+                if (parts.Length >= 2 && parts[0] == sType)
+                {
+                    lastSelectedType = line.Substring(line.IndexOf(' ') + 1);
+                }
+            }
+            //这里需要根据类型返回有效值，避免其他bug
+            return lastSelectedType;
         }
     }
 
@@ -790,23 +1038,26 @@ namespace FileManagement
     {
         private string sPathType;
         private string sFilePath;
-        public FilePathOp(string sPathType, string sFilePath)
+        private string sDefaultPath;
+        public FilePathOp(string sPathType, string sDefaultPath, string sFilePath)
         {
             this.sPathType = sPathType;
             this.sFilePath = sFilePath;
+            this.sDefaultPath = sDefaultPath;
             if (!File.Exists(sFilePath))
             {
                 using (StreamWriter writer = File.CreateText(sFilePath))
                 {
-                    writer.WriteLine("");
+                    writer.WriteLine(sPathType + " " + sDefaultPath);
                 }
             }
         }
         public string GetPath()
         {
-            string lastSelectedPath = string.Empty;
+            string lastSelectedPath = sDefaultPath;
             if (!File.Exists(sFilePath))
             {
+                lastSelectedPath = sDefaultPath;
                 return lastSelectedPath;
             }
             string[] lines = File.ReadAllLines(sFilePath);
@@ -1227,11 +1478,21 @@ namespace RemoteManagement
 
             try
             {
-                using (var fileStream = new FileStream(localFilePath, FileMode.Create))
+                var files = sftpClient.ListDirectory(remoteFilePath);
+                foreach (var file in files)
                 {
-                    sftpClient.DownloadFile(remoteFilePath, fileStream);
-                }
+                    if (!file.IsDirectory)
+                    {
+                        string remoteFile = remoteFilePath + "/" + file.Name;
+                        string localFile = Path.Combine(localFilePath, file.Name);
 
+                        using (Stream fileStream = File.Create(localFile))
+                        {
+                            sftpClient.DownloadFile(remoteFile, fileStream);
+                        }
+                    }
+                }
+                Console.WriteLine("所有文件已下载完成。");
                 return true;
             }
             catch (Exception ex)
@@ -1255,7 +1516,6 @@ namespace RemoteManagement
                 {
                     sftpClient.UploadFile(fileStream, remoteFilePath);
                 }
-
                 return true;
             }
             catch (Exception ex)
