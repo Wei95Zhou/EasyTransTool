@@ -333,36 +333,11 @@ namespace ExtPkgUpdateTool
                                 line = line.Replace("ENS_F", ensfAddress);
                                 line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
                                 line = line.Replace("RU_IP_ADDR", ruIpAddress);
-                                line = line.Replace("FILE_TRANS_NAME", fileTempName);
-                                line = line.Replace("FILE_NAME", uploadFilePathOp.getSelFileName());
-                                CmdWindow.Text = line;
-                                CmdWindow.Refresh();
-                                Console.WriteLine(line);
-                                string timestamp = DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]");
-                                logFile.AppendToFile(timestamp + line + "\n");
-                                if (line.StartsWith("sendln "))
+                                line = line.Replace("UPLOAD_FILE_TRANS_NAME", fileTempName);
+                                line = line.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
+                                if (false == scriptExecuter(line, serverSshOp))
                                 {
-                                    string command = GetCommand(line);
-                                    serverSshOp.ExecuteCommand(command);
-                                }
-                                else if (line.StartsWith("wait "))
-                                {
-                                    string expectedString = GetExpectedString(line);
-                                    serverSshOp.WaitForOutput(expectedString);
-                                }
-                                else if (line.StartsWith("wait_timer "))
-                                {
-                                    string expectedString = GetExpectedString(line);
-                                    if (false == serverSshOp.WaitForOutput_Timer(expectedString))
-                                    {
-                                        MessageBox.Show("上传失败，请检查IP配置！");
-                                        CmdWindow.Text = "";
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Invalid command: " + line);
+                                    return;
                                 }
                             }
                         }
@@ -439,36 +414,12 @@ namespace ExtPkgUpdateTool
                                 line = line.Replace("ENS_F", ensfAddress);
                                 line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
                                 line = line.Replace("RU_IP_ADDR", ruIpAddress);
-                                line = line.Replace("FILE_PATH", filePathInRU);
-                                line = line.Replace("FILE_NAME", fileNameInRU);
+                                line = line.Replace("DOWNLOAD_FILE_PATH_IN_RU", filePathInRU);
+                                line = line.Replace("DOWNLOAD_FILE_NAME_IN_RU", fileNameInRU);
                                 line = line.Replace("TIME_STAMP", timeStamp);
-                                CmdWindow.Text = line;
-                                CmdWindow.Refresh();
-                                Console.WriteLine(line);
-                                logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + line + "\n");
-                                if (line.StartsWith("sendln "))
+                                if (false == scriptExecuter(line, serverSshOp))
                                 {
-                                    string command = GetCommand(line);
-                                    serverSshOp.ExecuteCommand(command);
-                                }
-                                else if (line.StartsWith("wait "))
-                                {
-                                    string expectedString = GetExpectedString(line);
-                                    serverSshOp.WaitForOutput(expectedString);
-                                }
-                                else if (line.StartsWith("wait_timer "))
-                                {
-                                    string expectedString = GetExpectedString(line);
-                                    if (false == serverSshOp.WaitForOutput_Timer(expectedString))
-                                    {
-                                        MessageBox.Show("下载失败，请检查IP配置！");
-                                        CmdWindow.Text = "";
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Invalid command: " + line);
+                                    return;
                                 }
                             }
                         }
@@ -491,6 +442,39 @@ namespace ExtPkgUpdateTool
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
                 serverSshOp.Disconnect();
             }
+        }
+
+        private bool scriptExecuter(string script, SshOp serverSshOp)
+        {            
+            CmdWindow.Text = script;
+            CmdWindow.Refresh();
+            Console.WriteLine(script);
+            logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + script + "\n");
+            if (script.StartsWith("sendln "))
+            {
+                string command = GetCommand(script);
+                serverSshOp.ExecuteCommand(command);
+            }
+            else if (script.StartsWith("wait "))
+            {
+                string expectedString = GetExpectedString(script);
+                serverSshOp.WaitForOutput(expectedString);
+            }
+            else if (script.StartsWith("wait_timer "))
+            {
+                string expectedString = GetExpectedString(script);
+                if (false == serverSshOp.WaitForOutput_Timer(expectedString))
+                {
+                    MessageBox.Show("下载失败，请检查IP配置！");
+                    CmdWindow.Text = "";
+                    return false;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid command: " + script);
+            }
+            return true;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
