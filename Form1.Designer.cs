@@ -67,7 +67,7 @@
             this.filePathSel.Location = new System.Drawing.Point(554, 56);
             this.filePathSel.Name = "filePathSel";
             this.filePathSel.Size = new System.Drawing.Size(81, 23);
-            this.filePathSel.TabIndex = 2;
+            this.filePathSel.TabIndex = 3;
             this.filePathSel.Text = "选择文件";
             this.filePathSel.UseVisualStyleBackColor = true;
             this.filePathSel.Click += new System.EventHandler(this.filePathSel_Click);
@@ -82,7 +82,7 @@
             this.filePath.Location = new System.Drawing.Point(148, 56);
             this.filePath.Name = "filePath";
             this.filePath.Size = new System.Drawing.Size(400, 23);
-            this.filePath.TabIndex = 1;
+            this.filePath.TabIndex = 0;
             this.filePath.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // fielPathLabel
@@ -103,7 +103,7 @@
             this.uploadButton.Location = new System.Drawing.Point(554, 278);
             this.uploadButton.Name = "uploadButton";
             this.uploadButton.Size = new System.Drawing.Size(81, 23);
-            this.uploadButton.TabIndex = 13;
+            this.uploadButton.TabIndex = 10;
             this.uploadButton.Text = "上传文件";
             this.uploadButton.UseVisualStyleBackColor = true;
             this.uploadButton.Click += new System.EventHandler(this.uploadButton_Click);
@@ -142,7 +142,7 @@
             this.TypeSelBox.Location = new System.Drawing.Point(148, 92);
             this.TypeSelBox.Name = "TypeSelBox";
             this.TypeSelBox.Size = new System.Drawing.Size(400, 24);
-            this.TypeSelBox.TabIndex = 3;
+            this.TypeSelBox.TabIndex = 4;
             this.TypeSelBox.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label3
@@ -166,7 +166,7 @@
             this.DuIpComboBox.Location = new System.Drawing.Point(148, 129);
             this.DuIpComboBox.Name = "DuIpComboBox";
             this.DuIpComboBox.Size = new System.Drawing.Size(400, 24);
-            this.DuIpComboBox.TabIndex = 4;
+            this.DuIpComboBox.TabIndex = 5;
             this.DuIpComboBox.SelectedIndexChanged += new System.EventHandler(this.DuIpComboBox_SelectedIndexChanged);
             // 
             // RuIpComboBox
@@ -179,7 +179,7 @@
             this.RuIpComboBox.Location = new System.Drawing.Point(148, 203);
             this.RuIpComboBox.Name = "RuIpComboBox";
             this.RuIpComboBox.Size = new System.Drawing.Size(400, 24);
-            this.RuIpComboBox.TabIndex = 8;
+            this.RuIpComboBox.TabIndex = 7;
             this.RuIpComboBox.SelectedIndexChanged += new System.EventHandler(this.RuIpComboBox_SelectedIndexChanged);
             // 
             // duIpDelButton
@@ -189,7 +189,8 @@
             this.duIpDelButton.Location = new System.Drawing.Point(554, 130);
             this.duIpDelButton.Name = "duIpDelButton";
             this.duIpDelButton.Size = new System.Drawing.Size(81, 23);
-            this.duIpDelButton.TabIndex = 5;
+            this.duIpDelButton.TabIndex = 13;
+            this.duIpDelButton.TabStop = false;
             this.duIpDelButton.Text = "删除";
             this.duIpDelButton.UseVisualStyleBackColor = true;
             this.duIpDelButton.Click += new System.EventHandler(this.duIpDelButton_Click);
@@ -201,7 +202,8 @@
             this.ruIpDelButton.Location = new System.Drawing.Point(554, 204);
             this.ruIpDelButton.Name = "ruIpDelButton";
             this.ruIpDelButton.Size = new System.Drawing.Size(81, 23);
-            this.ruIpDelButton.TabIndex = 9;
+            this.ruIpDelButton.TabIndex = 11;
+            this.ruIpDelButton.TabStop = false;
             this.ruIpDelButton.Text = "删除";
             this.ruIpDelButton.UseVisualStyleBackColor = true;
             this.ruIpDelButton.Click += new System.EventHandler(this.ruIpDelButton_Click);
@@ -213,7 +215,8 @@
             this.ensfDelButton.Location = new System.Drawing.Point(554, 241);
             this.ensfDelButton.Name = "ensfDelButton";
             this.ensfDelButton.Size = new System.Drawing.Size(81, 23);
-            this.ensfDelButton.TabIndex = 11;
+            this.ensfDelButton.TabIndex = 10;
+            this.ensfDelButton.TabStop = false;
             this.ensfDelButton.Text = "删除";
             this.ensfDelButton.UseVisualStyleBackColor = true;
             this.ensfDelButton.Click += new System.EventHandler(this.ensfDelButton_Click);
@@ -228,7 +231,7 @@
             this.EnsfComboBox.Location = new System.Drawing.Point(148, 240);
             this.EnsfComboBox.Name = "EnsfComboBox";
             this.EnsfComboBox.Size = new System.Drawing.Size(400, 24);
-            this.EnsfComboBox.TabIndex = 10;
+            this.EnsfComboBox.TabIndex = 8;
             // 
             // label5
             // 
@@ -249,7 +252,8 @@
             this.fsuIpDelButton.Location = new System.Drawing.Point(554, 167);
             this.fsuIpDelButton.Name = "fsuIpDelButton";
             this.fsuIpDelButton.Size = new System.Drawing.Size(81, 23);
-            this.fsuIpDelButton.TabIndex = 7;
+            this.fsuIpDelButton.TabIndex = 12;
+            this.fsuIpDelButton.TabStop = false;
             this.fsuIpDelButton.Text = "删除";
             this.fsuIpDelButton.UseVisualStyleBackColor = true;
             this.fsuIpDelButton.Click += new System.EventHandler(this.fsuIpDelButton_Click);
@@ -287,7 +291,7 @@
             this.CmdWindow.Location = new System.Drawing.Point(148, 315);
             this.CmdWindow.Name = "CmdWindow";
             this.CmdWindow.Size = new System.Drawing.Size(400, 23);
-            this.CmdWindow.TabIndex = 12;
+            this.CmdWindow.TabIndex = 0;
             this.CmdWindow.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // openFileDialog1
@@ -304,7 +308,7 @@
             this.newVerRelPath.Name = "newVerRelPath";
             this.newVerRelPath.ReadOnly = true;
             this.newVerRelPath.Size = new System.Drawing.Size(624, 14);
-            this.newVerRelPath.TabIndex = 18;
+            this.newVerRelPath.TabIndex = 11;
             this.newVerRelPath.Text = "-";
             this.newVerRelPath.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -315,7 +319,7 @@
             this.hintLabel.Location = new System.Drawing.Point(465, 356);
             this.hintLabel.Name = "hintLabel";
             this.hintLabel.Size = new System.Drawing.Size(227, 12);
-            this.hintLabel.TabIndex = 19;
+            this.hintLabel.TabIndex = 0;
             this.hintLabel.Text = "发现Bug请告知FW周唯~ 新版本发布位置：";
             // 
             // updateChkTimer
@@ -334,7 +338,7 @@
             this.TransModeSelBox.Location = new System.Drawing.Point(148, 19);
             this.TransModeSelBox.Name = "TransModeSelBox";
             this.TransModeSelBox.Size = new System.Drawing.Size(400, 24);
-            this.TransModeSelBox.TabIndex = 20;
+            this.TransModeSelBox.TabIndex = 1;
             this.TransModeSelBox.SelectedIndexChanged += new System.EventHandler(this.TransModeSelBox_SelectedIndexChanged);
             // 
             // label7
@@ -356,7 +360,7 @@
             this.transModeSwitchButton.Location = new System.Drawing.Point(554, 19);
             this.transModeSwitchButton.Name = "transModeSwitchButton";
             this.transModeSwitchButton.Size = new System.Drawing.Size(81, 23);
-            this.transModeSwitchButton.TabIndex = 22;
+            this.transModeSwitchButton.TabIndex = 2;
             this.transModeSwitchButton.Text = "切换";
             this.transModeSwitchButton.UseVisualStyleBackColor = true;
             this.transModeSwitchButton.Click += new System.EventHandler(this.transModeSwitchButton_Click);
@@ -369,7 +373,7 @@
             this.dlFileName.Location = new System.Drawing.Point(148, 277);
             this.dlFileName.Name = "dlFileName";
             this.dlFileName.Size = new System.Drawing.Size(376, 24);
-            this.dlFileName.TabIndex = 23;
+            this.dlFileName.TabIndex = 9;
             // 
             // fileDlLabel
             // 
@@ -388,7 +392,8 @@
             this.dlHintButton.Location = new System.Drawing.Point(524, 277);
             this.dlHintButton.Name = "dlHintButton";
             this.dlHintButton.Size = new System.Drawing.Size(24, 24);
-            this.dlHintButton.TabIndex = 25;
+            this.dlHintButton.TabIndex = 0;
+            this.dlHintButton.TabStop = false;
             this.dlHintButton.Text = "?";
             this.dlHintButton.UseVisualStyleBackColor = true;
             this.dlHintButton.Click += new System.EventHandler(this.dlHintButton_Click);

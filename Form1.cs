@@ -313,8 +313,6 @@ namespace ExtPkgUpdateTool
             if (true == serverSftpOp.Connect())
             {
                 serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), filePath + fileTempName);
-                MessageBox.Show(uploadFilePathOp.GetPath());
-                MessageBox.Show(filePath + fileTempName);
                 serverSftpOp.Disconnect();
             }
             if (true == serverSshOp.Connect())
