@@ -33,7 +33,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.0.0";
+        private string sRelVer = "2.1.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -333,6 +333,30 @@ namespace ExtPkgUpdateTool
                                 line = line.Replace("ENS_F", ensfAddress);
                                 line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
                                 line = line.Replace("RU_IP_ADDR", ruIpAddress);
+                                line = line.Replace("RU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
+                                line = line.Replace("RU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
+                                if (pw123qweCheckBox.Checked == true)
+                                {
+                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUserOld").Password);
+                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRootOld").Password);
+                                }
+                                else
+                                {
+                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUser").Password);
+                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
+                                }
+                                line = line.Replace("CDU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
+                                line = line.Replace("CDU_USER_PW", usrMng.GetUserByType("cduUser").Password);
+                                line = line.Replace("CDU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
+                                line = line.Replace("CDU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
+                                line = line.Replace("VDU_USER_NAME", usrMng.GetUserByType("vduUser").Username);
+                                line = line.Replace("VDU_USER_PW", usrMng.GetUserByType("vduUser").Password);
+                                line = line.Replace("VDU_ROOT_NAME", usrMng.GetUserByType("vduRoot").Username);
+                                line = line.Replace("VDU_ROOT_PW", usrMng.GetUserByType("vduRoot").Password);
+                                line = line.Replace("FSU_USER_NAME", usrMng.GetUserByType("fsuUser").Username);
+                                line = line.Replace("FSU_USER_PW", usrMng.GetUserByType("fsuUser").Password);
+                                line = line.Replace("FSU_ROOT_NAME", usrMng.GetUserByType("fsuRoot").Username);
+                                line = line.Replace("FSU_ROOT_PW", usrMng.GetUserByType("fsuRoot").Password);
                                 line = line.Replace("UPLOAD_FILE_TRANS_NAME", fileTempName);
                                 line = line.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
                                 if (false == scriptExecuter(line, serverSshOp))
@@ -414,6 +438,30 @@ namespace ExtPkgUpdateTool
                                 line = line.Replace("ENS_F", ensfAddress);
                                 line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
                                 line = line.Replace("RU_IP_ADDR", ruIpAddress);
+                                line = line.Replace("RU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
+                                line = line.Replace("RU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
+                                if (pw123qweCheckBox.Checked == true)
+                                {
+                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUserOld").Password);
+                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRootOld").Password);
+                                }
+                                else
+                                {
+                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUser").Password);
+                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
+                                }
+                                line = line.Replace("CDU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
+                                line = line.Replace("CDU_USER_PW", usrMng.GetUserByType("cduUser").Password);
+                                line = line.Replace("CDU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
+                                line = line.Replace("CDU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
+                                line = line.Replace("VDU_USER_NAME", usrMng.GetUserByType("vduUser").Username);
+                                line = line.Replace("VDU_USER_PW", usrMng.GetUserByType("vduUser").Password);
+                                line = line.Replace("VDU_ROOT_NAME", usrMng.GetUserByType("vduRoot").Username);
+                                line = line.Replace("VDU_ROOT_PW", usrMng.GetUserByType("vduRoot").Password);
+                                line = line.Replace("FSU_USER_NAME", usrMng.GetUserByType("fsuUser").Username);
+                                line = line.Replace("FSU_USER_PW", usrMng.GetUserByType("fsuUser").Password);
+                                line = line.Replace("FSU_ROOT_NAME", usrMng.GetUserByType("fsuRoot").Username);
+                                line = line.Replace("FSU_ROOT_PW", usrMng.GetUserByType("fsuRoot").Password);
                                 line = line.Replace("DOWNLOAD_FILE_PATH_IN_RU", filePathInRU);
                                 line = line.Replace("DOWNLOAD_FILE_NAME_IN_RU", fileNameInRU);
                                 line = line.Replace("TIME_STAMP", timeStamp);
@@ -450,7 +498,11 @@ namespace ExtPkgUpdateTool
             CmdWindow.Refresh();
             Console.WriteLine(script);
             logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + script + "\n");
-            if (script.StartsWith("sendln "))
+            if (script.StartsWith("#") || (script == string.Empty))
+            {
+                return true;
+            }
+            else if (script.StartsWith("sendln "))
             {
                 string command = GetCommand(script);
                 serverSshOp.ExecuteCommand(command);
@@ -784,6 +836,11 @@ namespace ExtPkgUpdateTool
         {
             MessageBox.Show("默认获取路径为/tmp/，如输入abc*，将获取/tmp/路径下abc开头的所有文件\n" +
                 "如果输入/home/user/abc，将获取/home/user/路径下的名为abc的文件");
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("如果是密码为123qwe的机型，请勾选此框");
         }
     }
 }

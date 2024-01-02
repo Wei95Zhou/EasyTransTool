@@ -58,6 +58,8 @@
             this.dlFileName = new System.Windows.Forms.TextBox();
             this.fileDlLabel = new System.Windows.Forms.Label();
             this.dlHintButton = new System.Windows.Forms.Button();
+            this.pw123qweCheckBox = new System.Windows.Forms.CheckBox();
+            this.pw123qweButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // filePathSel
@@ -304,10 +306,10 @@
             this.newVerRelPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.newVerRelPath.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.newVerRelPath.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.newVerRelPath.Location = new System.Drawing.Point(65, 372);
+            this.newVerRelPath.Location = new System.Drawing.Point(84, 372);
             this.newVerRelPath.Name = "newVerRelPath";
             this.newVerRelPath.ReadOnly = true;
-            this.newVerRelPath.Size = new System.Drawing.Size(624, 14);
+            this.newVerRelPath.Size = new System.Drawing.Size(605, 14);
             this.newVerRelPath.TabIndex = 11;
             this.newVerRelPath.Text = "-";
             this.newVerRelPath.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -398,11 +400,36 @@
             this.dlHintButton.UseVisualStyleBackColor = true;
             this.dlHintButton.Click += new System.EventHandler(this.dlHintButton_Click);
             // 
+            // pw123qweCheckBox
+            // 
+            this.pw123qweCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.pw123qweCheckBox.AutoSize = true;
+            this.pw123qweCheckBox.Location = new System.Drawing.Point(3, 372);
+            this.pw123qweCheckBox.Name = "pw123qweCheckBox";
+            this.pw123qweCheckBox.Size = new System.Drawing.Size(84, 16);
+            this.pw123qweCheckBox.TabIndex = 25;
+            this.pw123qweCheckBox.Text = "老机型密码";
+            this.pw123qweCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // pw123qweButton
+            // 
+            this.pw123qweButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.pw123qweButton.Location = new System.Drawing.Point(84, 367);
+            this.pw123qweButton.Name = "pw123qweButton";
+            this.pw123qweButton.Size = new System.Drawing.Size(24, 24);
+            this.pw123qweButton.TabIndex = 26;
+            this.pw123qweButton.TabStop = false;
+            this.pw123qweButton.Text = "?";
+            this.pw123qweButton.UseVisualStyleBackColor = true;
+            this.pw123qweButton.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 389);
+            this.Controls.Add(this.pw123qweButton);
+            this.Controls.Add(this.pw123qweCheckBox);
             this.Controls.Add(this.dlHintButton);
             this.Controls.Add(this.fileDlLabel);
             this.Controls.Add(this.dlFileName);
@@ -470,6 +497,8 @@
         private System.Windows.Forms.TextBox dlFileName;
         private System.Windows.Forms.Label fileDlLabel;
         private System.Windows.Forms.Button dlHintButton;
+        private System.Windows.Forms.CheckBox pw123qweCheckBox;
+        private System.Windows.Forms.Button pw123qweButton;
     }
 }
 
