@@ -33,7 +33,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.1.1";
+        private string sRelVer = "2.2.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -49,16 +49,16 @@ namespace ExtPkgUpdateTool
         FilePathOp newVerChkPathOp = new FilePathOp("NewVerChkPath", "C:", "./config/Path.cfg");
         UserManager usrTest = new UserManager("./config/UserMng.cfg", "testUser");
         UserManager usr1168fw = new UserManager("./config/UserMng.cfg", "1168fw");
-        UserManager usrRuUser = new UserManager("./config/UserMng.cfg", "usrRuUser");
-        UserManager usrRuRoot = new UserManager("./config/UserMng.cfg", "usrRuRoot");
-        UserManager usrRuUserOld = new UserManager("./config/UserMng.cfg", "usrRuUserOld");
-        UserManager usrRuRootOld = new UserManager("./config/UserMng.cfg", "usrRuRootOld");
-        UserManager usrCduUser = new UserManager("./config/UserMng.cfg", "usrCduUser");
-        UserManager usrCduRoot = new UserManager("./config/UserMng.cfg", "usrCduRoot");
-        UserManager usrVduUser = new UserManager("./config/UserMng.cfg", "usrVduUser");
-        UserManager usrVduRoot = new UserManager("./config/UserMng.cfg", "usrVduRoot");
-        UserManager usrFsuUser = new UserManager("./config/UserMng.cfg", "usrFsuUser");
-        UserManager usrFsuRoot = new UserManager("./config/UserMng.cfg", "usrFsuRoot");
+        UserManager usrRuUser = new UserManager("./config/UserMng.cfg", "ruUser");
+        UserManager usrRuRoot = new UserManager("./config/UserMng.cfg", "ruRoot");
+        UserManager usrRuUserOld = new UserManager("./config/UserMng.cfg", "ruUserOld");
+        UserManager usrRuRootOld = new UserManager("./config/UserMng.cfg", "ruRootOld");
+        UserManager usrCduUser = new UserManager("./config/UserMng.cfg", "cduUser");
+        UserManager usrCduRoot = new UserManager("./config/UserMng.cfg", "cduRoot");
+        UserManager usrVduUser = new UserManager("./config/UserMng.cfg", "vduUser");
+        UserManager usrVduRoot = new UserManager("./config/UserMng.cfg", "vduRoot");
+        UserManager usrFsuUser = new UserManager("./config/UserMng.cfg", "fsuUser");
+        UserManager usrFsuRoot = new UserManager("./config/UserMng.cfg", "fsuRoot");
         FileOp logFile = new FileOp("./log/Script.log");
         //MainForm mainForm = new MainForm();
         public Form1()
@@ -71,14 +71,29 @@ namespace ExtPkgUpdateTool
             //Show new version release path in form
             newVerRelPath.Text = newVerPathOp.GetPath();
 
+            initAllObject();
+        }
+
+        private void initAllObject()
+        {
+            TransModeSelBox.Enabled = true;
+            transModeSwitchButton.Enabled = true;
+            filePathSel.Enabled = true;
+            TypeSelBox.Enabled = true;
+            duIpDelButton.Enabled = true;
+            ruIpDelButton.Enabled = true;
+            uploadButton.Enabled = true;
+
             //Init trans type select box
             //Init file path label
+            TransModeSelBox.Items.Clear();
             TransModeSelBox.Items.Add("PC->RU");
             TransModeSelBox.Items.Add("RU->PC");
             TransModeSelBox.SelectedItem = transModeTypeOp.GetType();
             TransModeSwitch();
 
             //Init link type select box
+            TypeSelBox.Items.Clear();
             TypeSelBox.Items.Add("vDU-ORU");
             TypeSelBox.Items.Add("CDU-RU");
             TypeSelBox.Items.Add("vDU-FSU-RU");
@@ -91,7 +106,7 @@ namespace ExtPkgUpdateTool
                 ComboBox_Refresh(FsuIpComboBox, fsuIpOp, fsuIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, fsuIpDelButton);
                 ComboBox_Disable(EnsfComboBox, ensfDelButton);
             }
-            else if(string.Equals("CDU-RU", TypeSelBox.Text))
+            else if (string.Equals("CDU-RU", TypeSelBox.Text))
             {
                 ComboBox_Disable(FsuIpComboBox, fsuIpDelButton);
                 ComboBox_Disable(EnsfComboBox, ensfDelButton);
@@ -99,7 +114,6 @@ namespace ExtPkgUpdateTool
             else if (string.Equals("vDU-ORU", TypeSelBox.Text))
             {
                 ComboBox_Disable(FsuIpComboBox, fsuIpDelButton);
-                Console.WriteLine("ensfCnt = " + ensfOp.GetIPAddressCount(TypeSelBox.Text));
                 ComboBox_Refresh(EnsfComboBox, ensfOp, ensfOp.GetIPAddressCount(TypeSelBox.Text) - 1, ensfDelButton);
             }
             else
@@ -107,6 +121,7 @@ namespace ExtPkgUpdateTool
                 ComboBox_Refresh(FsuIpComboBox, fsuIpOp, fsuIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, fsuIpDelButton);
                 ComboBox_Refresh(EnsfComboBox, ensfOp, ensfOp.GetIPAddressCount(TypeSelBox.Text) - 1, ensfDelButton);
             }
+            return;
         }
 
         private void filePathSel_Click(object sender, EventArgs e)
@@ -174,20 +189,53 @@ namespace ExtPkgUpdateTool
             string fsuIpAddress = FsuIpComboBox.Text;
             string ensfAddress = EnsfComboBox.Text;
 
+            disableAllObject();
+
             scriptPath = fileTransScriptPreCheck();
-            if (scriptPath == String.Empty) return;
-            if (!fileTransIpPreCheck(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress)) return;
-            if (!fileTransPathPreCheck()) return;
+            if (scriptPath == String.Empty)
+            {
+                initAllObject();
+                return;
+            }
+            if (!fileTransIpPreCheck(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress))
+            {
+                initAllObject();
+                return;
+            }
+            if (!fileTransPathPreCheck())
+            {
+                initAllObject();
+                return;
+            }
             if (string.Equals("PC->RU", TransModeSelBox.Text))
             {
                 upload_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
-                return;
             }
             else if(string.Equals("RU->PC", TransModeSelBox.Text))
             {
                 download_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
-                return;
             }
+            initAllObject();
+            return;
+        }
+
+        private void disableAllObject()
+        {
+            TransModeSelBox.Enabled = false;
+            transModeSwitchButton.Enabled = false;
+            filePathSel.Enabled = false;
+            TypeSelBox.Enabled= false;
+            DuIpComboBox.Enabled= false;
+            duIpDelButton.Enabled= false;
+            FsuIpComboBox.Enabled = false;
+            fsuIpDelButton.Enabled = false;
+            RuIpComboBox.Enabled = false;
+            ruIpDelButton.Enabled = false;
+            EnsfComboBox.Enabled = false;
+            ensfDelButton.Enabled = false;
+            dlFileName.Enabled = false;
+            uploadButton.Enabled = false;
+            return;
         }
 
         private string fileTransScriptPreCheck()
@@ -253,7 +301,7 @@ namespace ExtPkgUpdateTool
             {
                 devTypeOp.SaveType(TypeSelBox.SelectedItem.ToString());
                 transModeTypeOp.SaveType(TransModeSelBox.SelectedItem.ToString());
-                if (true == dlFileName.Enabled)
+                if (string.Empty != dlFileName.Text)
                 {
                     dlFilPathInRuOp.SavePath(dlFileName.Text);
                 }
@@ -262,15 +310,15 @@ namespace ExtPkgUpdateTool
                 if (!string.Equals("", fsuIpAddress))
                 {
                     fsuIpOp.SaveIPAddressToFile(TypeSelBox.Text, fsuIpAddress);
-                    ComboBox_Refresh(FsuIpComboBox, fsuIpOp, fsuIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, fsuIpDelButton);
+                    //ComboBox_Refresh(FsuIpComboBox, fsuIpOp, fsuIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, fsuIpDelButton);
                 }
                 if (!string.Equals("", ensfAddress))
                 {
                     ensfOp.SaveIPAddressToFile(TypeSelBox.Text, ensfAddress);
-                    ComboBox_Refresh(EnsfComboBox, ensfOp, ensfOp.GetIPAddressCount(TypeSelBox.Text) - 1, ensfDelButton);
+                    //ComboBox_Refresh(EnsfComboBox, ensfOp, ensfOp.GetIPAddressCount(TypeSelBox.Text) - 1, ensfDelButton);
                 }
-                ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
-                ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
+                //ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
+                //ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
                 return true;
             }
         }
@@ -302,13 +350,13 @@ namespace ExtPkgUpdateTool
         {
             // Start update procedure
             // 1.Put file to 116.8 server
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            //string filePath = "/home/zw/" + Environment.UserName + "/";
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
+            string filePath = "/home/zw/" + Environment.UserName + "/";
 
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            string filePath = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            //string filePath = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string fileUploadTempName = uploadFilePathOp.getSelFileName() + timeStamp;
@@ -337,7 +385,7 @@ namespace ExtPkgUpdateTool
                             logFile.AppendToFile("running " + scriptPath + "\n");
                             while ((line = reader.ReadLine()) != null)
                             {
-                                line = line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
+                                line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
                                 if (false == scriptExecuter(line, serverSshOp))
                                 {
                                     return;
@@ -350,7 +398,7 @@ namespace ExtPkgUpdateTool
                         Console.WriteLine("Failed to read file: " + ex.Message);
                     }
                 }
-                serverSshOp.RunCommand("rm " + filePath + fileUploadTempName);
+                //serverSshOp.RunCommand("rm " + filePath + fileUploadTempName);
                 serverSshOp.Disconnect();
             }
         }
@@ -359,12 +407,12 @@ namespace ExtPkgUpdateTool
         {
             // Start update procedure
             // 1.Put file to 116.8 server
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            //string filePathInServer = "/tmp/";
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
+            string filePathInServer = "/tmp/";
+            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            //string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
@@ -408,7 +456,7 @@ namespace ExtPkgUpdateTool
             }
             if (true == serverSshOp.Connect())
             {
-                serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                //serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
                 serverSshOp.Disconnect();
             }
         }

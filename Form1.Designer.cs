@@ -311,6 +311,7 @@
             this.newVerRelPath.ReadOnly = true;
             this.newVerRelPath.Size = new System.Drawing.Size(605, 14);
             this.newVerRelPath.TabIndex = 11;
+            this.newVerRelPath.TabStop = false;
             this.newVerRelPath.Text = "-";
             this.newVerRelPath.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -350,7 +351,7 @@
             this.label7.Location = new System.Drawing.Point(42, 20);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(100, 23);
-            this.label7.TabIndex = 21;
+            this.label7.TabIndex = 10;
             this.label7.Text = "传输方向:";
             this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.label7.Click += new System.EventHandler(this.label7_Click);
@@ -417,8 +418,7 @@
             this.pw123qweButton.Location = new System.Drawing.Point(84, 367);
             this.pw123qweButton.Name = "pw123qweButton";
             this.pw123qweButton.Size = new System.Drawing.Size(24, 24);
-            this.pw123qweButton.TabIndex = 26;
-            this.pw123qweButton.TabStop = false;
+            this.pw123qweButton.TabIndex = 10;
             this.pw123qweButton.Text = "?";
             this.pw123qweButton.UseVisualStyleBackColor = true;
             this.pw123qweButton.Click += new System.EventHandler(this.button1_Click);
