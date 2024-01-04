@@ -33,7 +33,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.1.0";
+        private string sRelVer = "2.1.1";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -47,7 +47,18 @@ namespace ExtPkgUpdateTool
         FilePathOp dlFilPathInRuOp = new FilePathOp("FilePathInRu", "/tmp/", "./config/Path.cfg");
         FilePathOp newVerPathOp = new FilePathOp("NewVerPath", "C:", "./config/Path.cfg");
         FilePathOp newVerChkPathOp = new FilePathOp("NewVerChkPath", "C:", "./config/Path.cfg");
-        UserManager usrMng = new UserManager("./config/UserMng.cfg");
+        UserManager usrTest = new UserManager("./config/UserMng.cfg", "testUser");
+        UserManager usr1168fw = new UserManager("./config/UserMng.cfg", "1168fw");
+        UserManager usrRuUser = new UserManager("./config/UserMng.cfg", "usrRuUser");
+        UserManager usrRuRoot = new UserManager("./config/UserMng.cfg", "usrRuRoot");
+        UserManager usrRuUserOld = new UserManager("./config/UserMng.cfg", "usrRuUserOld");
+        UserManager usrRuRootOld = new UserManager("./config/UserMng.cfg", "usrRuRootOld");
+        UserManager usrCduUser = new UserManager("./config/UserMng.cfg", "usrCduUser");
+        UserManager usrCduRoot = new UserManager("./config/UserMng.cfg", "usrCduRoot");
+        UserManager usrVduUser = new UserManager("./config/UserMng.cfg", "usrVduUser");
+        UserManager usrVduRoot = new UserManager("./config/UserMng.cfg", "usrVduRoot");
+        UserManager usrFsuUser = new UserManager("./config/UserMng.cfg", "usrFsuUser");
+        UserManager usrFsuRoot = new UserManager("./config/UserMng.cfg", "usrFsuRoot");
         FileOp logFile = new FileOp("./log/Script.log");
         //MainForm mainForm = new MainForm();
         public Form1()
@@ -291,18 +302,16 @@ namespace ExtPkgUpdateTool
         {
             // Start update procedure
             // 1.Put file to 116.8 server
-            var testUser = usrMng.GetUserByType("testUser");
-            var user1168fw = usrMng.GetUserByType("1168fw");
-
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
-
-            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
-
+            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
+            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
             //string filePath = "/home/zw/" + Environment.UserName + "/";
-            string filePath = "/home/" + user1168fw.Username + "/tmp/" + Environment.UserName + "/";
-            string fileTempName = uploadFilePathOp.getSelFileName() + Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
+
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            string filePath = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+
+            string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
+            string fileUploadTempName = uploadFilePathOp.getSelFileName() + timeStamp;
 
             //每一句命令都需要检查返回值
             if (true == serverSshOp.Connect())
@@ -312,7 +321,7 @@ namespace ExtPkgUpdateTool
             }
             if (true == serverSftpOp.Connect())
             {
-                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), filePath + fileTempName);
+                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), filePath + fileUploadTempName);
                 serverSftpOp.Disconnect();
             }
             if (true == serverSshOp.Connect())
@@ -328,37 +337,7 @@ namespace ExtPkgUpdateTool
                             logFile.AppendToFile("running " + scriptPath + "\n");
                             while ((line = reader.ReadLine()) != null)
                             {
-                                line = line.Replace("USER_PATH", Environment.UserName);
-                                line = line.Replace("DU_IP_ADDR", duIpAddress);
-                                line = line.Replace("ENS_F", ensfAddress);
-                                line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
-                                line = line.Replace("RU_IP_ADDR", ruIpAddress);
-                                line = line.Replace("RU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
-                                line = line.Replace("RU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
-                                if (pw123qweCheckBox.Checked == true)
-                                {
-                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUserOld").Password);
-                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRootOld").Password);
-                                }
-                                else
-                                {
-                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUser").Password);
-                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
-                                }
-                                line = line.Replace("CDU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
-                                line = line.Replace("CDU_USER_PW", usrMng.GetUserByType("cduUser").Password);
-                                line = line.Replace("CDU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
-                                line = line.Replace("CDU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
-                                line = line.Replace("VDU_USER_NAME", usrMng.GetUserByType("vduUser").Username);
-                                line = line.Replace("VDU_USER_PW", usrMng.GetUserByType("vduUser").Password);
-                                line = line.Replace("VDU_ROOT_NAME", usrMng.GetUserByType("vduRoot").Username);
-                                line = line.Replace("VDU_ROOT_PW", usrMng.GetUserByType("vduRoot").Password);
-                                line = line.Replace("FSU_USER_NAME", usrMng.GetUserByType("fsuUser").Username);
-                                line = line.Replace("FSU_USER_PW", usrMng.GetUserByType("fsuUser").Password);
-                                line = line.Replace("FSU_ROOT_NAME", usrMng.GetUserByType("fsuRoot").Username);
-                                line = line.Replace("FSU_ROOT_PW", usrMng.GetUserByType("fsuRoot").Password);
-                                line = line.Replace("UPLOAD_FILE_TRANS_NAME", fileTempName);
-                                line = line.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
+                                line = line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
                                 if (false == scriptExecuter(line, serverSshOp))
                                 {
                                     return;
@@ -371,7 +350,7 @@ namespace ExtPkgUpdateTool
                         Console.WriteLine("Failed to read file: " + ex.Message);
                     }
                 }
-                serverSshOp.RunCommand("rm " + filePath + fileTempName);
+                serverSshOp.RunCommand("rm " + filePath + fileUploadTempName);
                 serverSshOp.Disconnect();
             }
         }
@@ -380,43 +359,16 @@ namespace ExtPkgUpdateTool
         {
             // Start update procedure
             // 1.Put file to 116.8 server
-            var testUser = usrMng.GetUserByType("testUser");
-            var user1168fw = usrMng.GetUserByType("1168fw");
-
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
-
-            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), testUser.Username, testUser.Password);
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
-
+            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
+            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
             //string filePathInServer = "/tmp/";
-            string filePathInServer = "/home/" + user1168fw.Username + "/tmp/" + Environment.UserName + "/";
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
-            string userInputFilePathInRU = dlFilPathInRuOp.GetPath();
-            string filePathInRU;
-            string fileNameInRU;
-
-            if (dlFilPathInRuOp.GetPath().StartsWith("/"))
-            {
-                int lastIndex = userInputFilePathInRU.LastIndexOf('/');
-                if (lastIndex >= 0)
-                {
-                    filePathInRU = userInputFilePathInRU.Substring(0, lastIndex);
-                    fileNameInRU = userInputFilePathInRU.Substring(lastIndex + 1);
-                }
-                else
-                {
-                    MessageBox.Show("下载失败，请检查要获取的文件路径是否正确！");
-                    CmdWindow.Text = "";
-                    return;
-                }
-            }
-            else
-            {
-                filePathInRU = "/tmp";
-                fileNameInRU = userInputFilePathInRU;
-            }
+            
 
             //每一句命令都需要检查返回值
             if (true == serverSshOp.Connect())
@@ -433,38 +385,7 @@ namespace ExtPkgUpdateTool
                             logFile.AppendToFile("running " + scriptPath + "\n");
                             while ((line = reader.ReadLine()) != null)
                             {
-                                line = line.Replace("USER_PATH", Environment.UserName);
-                                line = line.Replace("DU_IP_ADDR", duIpAddress);
-                                line = line.Replace("ENS_F", ensfAddress);
-                                line = line.Replace("FSU_IP_ADDR", fsuIpAddress);
-                                line = line.Replace("RU_IP_ADDR", ruIpAddress);
-                                line = line.Replace("RU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
-                                line = line.Replace("RU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
-                                if (pw123qweCheckBox.Checked == true)
-                                {
-                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUserOld").Password);
-                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRootOld").Password);
-                                }
-                                else
-                                {
-                                    line = line.Replace("RU_USER_PW", usrMng.GetUserByType("cduUser").Password);
-                                    line = line.Replace("RU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
-                                }
-                                line = line.Replace("CDU_USER_NAME", usrMng.GetUserByType("cduUser").Username);
-                                line = line.Replace("CDU_USER_PW", usrMng.GetUserByType("cduUser").Password);
-                                line = line.Replace("CDU_ROOT_NAME", usrMng.GetUserByType("cduRoot").Username);
-                                line = line.Replace("CDU_ROOT_PW", usrMng.GetUserByType("cduRoot").Password);
-                                line = line.Replace("VDU_USER_NAME", usrMng.GetUserByType("vduUser").Username);
-                                line = line.Replace("VDU_USER_PW", usrMng.GetUserByType("vduUser").Password);
-                                line = line.Replace("VDU_ROOT_NAME", usrMng.GetUserByType("vduRoot").Username);
-                                line = line.Replace("VDU_ROOT_PW", usrMng.GetUserByType("vduRoot").Password);
-                                line = line.Replace("FSU_USER_NAME", usrMng.GetUserByType("fsuUser").Username);
-                                line = line.Replace("FSU_USER_PW", usrMng.GetUserByType("fsuUser").Password);
-                                line = line.Replace("FSU_ROOT_NAME", usrMng.GetUserByType("fsuRoot").Username);
-                                line = line.Replace("FSU_ROOT_PW", usrMng.GetUserByType("fsuRoot").Password);
-                                line = line.Replace("DOWNLOAD_FILE_PATH_IN_RU", filePathInRU);
-                                line = line.Replace("DOWNLOAD_FILE_NAME_IN_RU", fileNameInRU);
-                                line = line.Replace("TIME_STAMP", timeStamp);
+                                line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
                                 if (false == scriptExecuter(line, serverSshOp))
                                 {
                                     return;
@@ -492,6 +413,71 @@ namespace ExtPkgUpdateTool
             }
         }
 
+        private string scriptUpdater(string line, string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress, string timeStamp)
+        {
+            string sUpdatedScript = line;
+            string fileUploadTempName = uploadFilePathOp.getSelFileName() + timeStamp;
+            string userInputFilePathInRU = dlFilPathInRuOp.GetPath();
+            string filePathInRU;
+            string fileNameInRU;
+
+            if (dlFilPathInRuOp.GetPath().StartsWith("/"))
+            {
+                int lastIndex = userInputFilePathInRU.LastIndexOf('/');
+                if (lastIndex >= 0)
+                {
+                    filePathInRU = userInputFilePathInRU.Substring(0, lastIndex);
+                    fileNameInRU = userInputFilePathInRU.Substring(lastIndex + 1);
+                }
+                else
+                {
+                    MessageBox.Show("下载失败，请检查要获取的文件路径是否正确！");
+                    CmdWindow.Text = "";
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                filePathInRU = "/tmp";
+                fileNameInRU = userInputFilePathInRU;
+            }
+
+            sUpdatedScript = sUpdatedScript.Replace("USER_PATH", Environment.UserName);
+            sUpdatedScript = sUpdatedScript.Replace("DU_IP_ADDR", duIpAddress);
+            sUpdatedScript = sUpdatedScript.Replace("ENS_F", ensfAddress);
+            sUpdatedScript = sUpdatedScript.Replace("FSU_IP_ADDR", fsuIpAddress);
+            sUpdatedScript = sUpdatedScript.Replace("RU_IP_ADDR", ruIpAddress);
+            sUpdatedScript = sUpdatedScript.Replace("RU_USER_NAME", usrRuUser.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("RU_ROOT_NAME", usrRuRoot.GetName());
+            if (pw123qweCheckBox.Checked == true)
+            {
+                sUpdatedScript = sUpdatedScript.Replace("RU_USER_PW", usrRuUserOld.GetPW());
+                sUpdatedScript = sUpdatedScript.Replace("RU_ROOT_PW", usrRuRootOld.GetPW());
+            }
+            else
+            {
+                sUpdatedScript = sUpdatedScript.Replace("RU_USER_PW", usrRuUser.GetPW());
+                sUpdatedScript = sUpdatedScript.Replace("RU_ROOT_PW", usrRuRoot.GetPW());
+            }
+            sUpdatedScript = sUpdatedScript.Replace("CDU_USER_NAME", usrCduUser.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("CDU_USER_PW", usrCduUser.GetPW());
+            sUpdatedScript = sUpdatedScript.Replace("CDU_ROOT_NAME", usrCduRoot.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("CDU_ROOT_PW", usrCduRoot.GetPW());
+            sUpdatedScript = sUpdatedScript.Replace("VDU_USER_NAME", usrVduUser.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("VDU_USER_PW", usrVduUser.GetPW());
+            sUpdatedScript = sUpdatedScript.Replace("VDU_ROOT_NAME", usrVduRoot.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("VDU_ROOT_PW", usrVduRoot.GetPW());
+            sUpdatedScript = sUpdatedScript.Replace("FSU_USER_NAME", usrFsuUser.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("FSU_USER_PW", usrFsuUser.GetPW());
+            sUpdatedScript = sUpdatedScript.Replace("FSU_ROOT_NAME", usrFsuRoot.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("FSU_ROOT_PW", usrFsuRoot.GetPW());
+            sUpdatedScript = sUpdatedScript.Replace("UPLOAD_FILE_TRANS_NAME", fileUploadTempName);
+            sUpdatedScript = sUpdatedScript.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
+            sUpdatedScript = sUpdatedScript.Replace("DOWNLOAD_FILE_PATH_IN_RU", filePathInRU);
+            sUpdatedScript = sUpdatedScript.Replace("DOWNLOAD_FILE_NAME_IN_RU", fileNameInRU);
+            sUpdatedScript = sUpdatedScript.Replace("TIME_STAMP", timeStamp);
+            return sUpdatedScript;
+        }
         private bool scriptExecuter(string script, SshOp serverSshOp)
         {            
             CmdWindow.Text = script;
@@ -738,8 +724,7 @@ namespace ExtPkgUpdateTool
         private bool NewVerCheck()
         {
             bool bNewVerRel = false;
-            var user1168fw = usrMng.GetUserByType("1168fw");
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), user1168fw.Username, user1168fw.Password);
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
             if (true == serverSshOp.Connect())
             {
                 string sLatestVer = serverSshOp.RunCommand("cat " + newVerChkPathOp.GetPath());
@@ -1581,103 +1566,62 @@ namespace RemoteManagement
 
 namespace UserManagement
 {
-    public class User
-    {
-        public string Type { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-
-        public User(string type, string username, string password)
-        {
-            Type = type;
-            Username = username;
-            Password = password;
-        }
-
-        public override string ToString()
-        {
-            return $"{Type}:{Username}:{Password}";
-        }
-    }
-
     public class UserManager
     {
-        private string filePath;
-        private Dictionary<string, User> users;
+        private string sFilePath;
+        private string sUserType;
 
-        public UserManager(string filePath)
+        public UserManager(string sFilePath, string sUserType)
         {
-            this.filePath = filePath;
-            users = new Dictionary<string, User>();
-            LoadUsersFromFile();
-        }
-
-        public void AddUser(string type, string username, string password)
-        {
-            var user = new User(type, username, password);
-            string userString = user.ToString();
-
-            users[username] = user;
-
-            // Write all users to the file
-            File.WriteAllLines(filePath, GetUsersAsStringList());
-        }
-
-        public void RemoveUser(string username)
-        {
-            if (users.ContainsKey(username))
+            this.sFilePath = sFilePath;
+            this.sUserType = sUserType;
+            if (!File.Exists(sFilePath))
             {
-                users.Remove(username);
-
-                // Write all users to the file
-                File.WriteAllLines(filePath, GetUsersAsStringList());
-            }
-        }
-
-        public User GetUserByType(string type)
-        {
-            foreach (var user in users.Values)
-            {
-                if (user.Type == type)
+                MessageBox.Show("用户名及密码配置缺失，将无法传输文件！");
+                using (StreamWriter writer = File.CreateText(sFilePath))
                 {
-                    return user;
+                    writer.WriteLine("");
                 }
             }
-
-            return null;
         }
 
-        private List<string> GetUsersAsStringList()
+        public string GetName()
         {
-            var userList = new List<string>();
-
-            foreach (var user in users.Values)
+            string sName = string.Empty;
+            if (!File.Exists(sFilePath))
             {
-                userList.Add(user.ToString());
+                sName = string.Empty;
+                return sName;
             }
-
-            return userList;
-        }
-
-        private void LoadUsersFromFile()
-        {
-            if (File.Exists(filePath))
+            string[] lines = File.ReadAllLines(sFilePath);
+            foreach (string line in lines)
             {
-                string[] lines = File.ReadAllLines(filePath);
-
-                foreach (var line in lines)
+                string[] parts = line.Split(':');
+                if (parts.Length >= 2 && parts[0] == sUserType)
                 {
-                    string[] parts = line.Split(':');
-                    if (parts.Length == 3)
-                    {
-                        string type = parts[0];
-                        string username = parts[1];
-                        string password = parts[2];
-                        var user = new User(type, username, password);
-                        users[username] = user;
-                    }
+                    sName = parts[1];
                 }
             }
+            return sName;
+        }
+        public string GetPW()
+        {
+            string sPassword = string.Empty;
+            if (!File.Exists(sFilePath))
+            {
+                sPassword = string.Empty;
+                return sPassword;
+            }
+            string[] lines = File.ReadAllLines(sFilePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(':');
+                if (parts.Length >= 2 && parts[0] == sUserType)
+                {
+                    sPassword = parts[2];
+                }
+            }
+            return sPassword;
         }
     }
 }
