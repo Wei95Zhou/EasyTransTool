@@ -14,6 +14,7 @@ using IPAddressManagement;
 using FileManagement;
 using RemoteManagement;
 using UserManagement;
+using SwiftCopyButtonManagement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Text.RegularExpressions;
@@ -22,6 +23,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolBar;
 using System.Reflection;
 using System.Diagnostics.Eventing.Reader;
 using System.Runtime.Remoting.Messaging;
+using System.Diagnostics;
 
 namespace ExtPkgUpdateTool
 {
@@ -33,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.3.0";
+        private string sRelVer = "2.4.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -59,6 +61,7 @@ namespace ExtPkgUpdateTool
         UserManager usrVduRoot = new UserManager("./config/UserMng.cfg", "vduRoot");
         UserManager usrFsuUser = new UserManager("./config/UserMng.cfg", "fsuUser");
         UserManager usrFsuRoot = new UserManager("./config/UserMng.cfg", "fsuRoot");
+        SwiftCpButtonManager swiftCpButtionOp = new SwiftCpButtonManager("./config/SwiftCopyButton.cfg");
         FileOp logFile = new FileOp("./log/Script.log");
         //MainForm mainForm = new MainForm();
         public Form1()
@@ -122,6 +125,21 @@ namespace ExtPkgUpdateTool
                 ComboBox_Refresh(FsuIpComboBox, fsuIpOp, fsuIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, fsuIpDelButton);
                 ComboBox_Refresh(EnsfComboBox, ensfOp, ensfOp.GetIPAddressCount(TypeSelBox.Text) - 1, ensfDelButton);
             }
+
+            string[] swiftCpButtonName = new string[4];
+            for (int index = 0; index < 4; index++)
+            {
+                swiftCpButtonName[index] = swiftCpButtionOp.GetNameByIndex(index);
+            }
+            if (string.Empty != swiftCpButtonName[0]) swiftCpButton0.Text = swiftCpButtonName[0];
+            else swiftCpButton0.Enabled = false;
+            if (string.Empty != swiftCpButtonName[1]) swiftCpButton1.Text = swiftCpButtonName[1];
+            else swiftCpButton1.Enabled = false;
+            if (string.Empty != swiftCpButtonName[2]) swiftCpButton2.Text = swiftCpButtonName[2];
+            else swiftCpButton2.Enabled = false;
+            if (string.Empty != swiftCpButtonName[3]) swiftCpButton3.Text = swiftCpButtonName[3];
+            else swiftCpButton3.Enabled = false;
+
             return;
         }
 
@@ -871,6 +889,39 @@ namespace ExtPkgUpdateTool
         private void button1_Click(object sender, EventArgs e)
         {
             MessageBox.Show("如果是密码为123qwe的机型，请勾选此框");
+        }
+
+        private void swiftCpLabel_Click(object sender, EventArgs e)
+        {
+            //this.Size = new Size(this.Size.Width, this.Size.Height + 50);
+        }
+
+        private void swiftCpButton0_Click(object sender, EventArgs e)
+        {
+            string command = swiftCpButtionOp.GetCommandByIndex(0);
+            command = command.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
+            Clipboard.SetText(command);
+        }
+
+        private void swiftCpButton1_Click(object sender, EventArgs e)
+        {
+            string command = swiftCpButtionOp.GetCommandByIndex(1);
+            command = command.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
+            Clipboard.SetText(command);
+        }
+
+        private void swiftCpButton2_Click(object sender, EventArgs e)
+        {
+            string command = swiftCpButtionOp.GetCommandByIndex(2);
+            command = command.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
+            Clipboard.SetText(command);
+        }
+
+        private void swiftCpButton3_Click(object sender, EventArgs e)
+        {
+            string command = swiftCpButtionOp.GetCommandByIndex(3);
+            command = command.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
+            Clipboard.SetText(command);
         }
     }
 }
@@ -1667,6 +1718,72 @@ namespace UserManagement
                 }
             }
             return sPassword;
+        }
+    }
+}
+
+namespace SwiftCopyButtonManagement
+{
+    public class SwiftCpButtonManager
+    {
+        private string sFilePath;
+
+        public SwiftCpButtonManager(string sFilePath)
+        {
+            this.sFilePath = sFilePath;
+            if (!File.Exists(sFilePath))
+            {
+                MessageBox.Show("快捷复制配置文件缺失，无法使用此功能！");
+                using (StreamWriter writer = File.CreateText(sFilePath))
+                {
+                    writer.WriteLine("");
+                }
+            }
+        }
+        public string GetNameByIndex(int index)
+        {
+            int lineCount = 0;
+            string sName = string.Empty;
+            if (!File.Exists(sFilePath))
+            {
+                sName = string.Empty;
+                return sName;
+            }
+            string[] lines = File.ReadAllLines(sFilePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(':');
+                if ((parts.Length >= 2) && (lineCount == index))
+                {
+                    sName = parts[0];
+                    return sName;
+                }
+                lineCount++;
+            }
+            return sName;
+        }
+        public string GetCommandByIndex(int index)
+        {
+            int lineCount = 0;
+            string sCommand = string.Empty;
+            if (!File.Exists(sFilePath))
+            {
+                sCommand = string.Empty;
+                return sCommand;
+            }
+            string[] lines = File.ReadAllLines(sFilePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(':');
+                if ((parts.Length >= 2) && (lineCount == index))
+                {
+                    sCommand = parts[1];
+                    return sCommand;
+                }
+                lineCount++;
+                
+            }
+            return sCommand;
         }
     }
 }

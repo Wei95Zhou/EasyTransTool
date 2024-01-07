@@ -61,6 +61,12 @@
             this.pw123qweButton = new System.Windows.Forms.Button();
             this.fileTransProgressBar = new System.Windows.Forms.ProgressBar();
             this.fileTransBGWorker = new System.ComponentModel.BackgroundWorker();
+            this.swiftCpButton0 = new System.Windows.Forms.Button();
+            this.swiftCpButton1 = new System.Windows.Forms.Button();
+            this.swiftCpButton2 = new System.Windows.Forms.Button();
+            this.progressLabel = new System.Windows.Forms.Label();
+            this.swiftCpLabel = new System.Windows.Forms.Label();
+            this.swiftCpButton3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // filePathSel
@@ -289,7 +295,7 @@
             this.newVerRelPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.newVerRelPath.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.newVerRelPath.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.newVerRelPath.Location = new System.Drawing.Point(84, 410);
+            this.newVerRelPath.Location = new System.Drawing.Point(84, 447);
             this.newVerRelPath.Name = "newVerRelPath";
             this.newVerRelPath.ReadOnly = true;
             this.newVerRelPath.Size = new System.Drawing.Size(605, 14);
@@ -302,7 +308,7 @@
             // 
             this.hintLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.hintLabel.AutoSize = true;
-            this.hintLabel.Location = new System.Drawing.Point(465, 394);
+            this.hintLabel.Location = new System.Drawing.Point(465, 431);
             this.hintLabel.Name = "hintLabel";
             this.hintLabel.Size = new System.Drawing.Size(227, 12);
             this.hintLabel.TabIndex = 0;
@@ -387,7 +393,7 @@
             // 
             this.pw123qweCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.pw123qweCheckBox.AutoSize = true;
-            this.pw123qweCheckBox.Location = new System.Drawing.Point(3, 410);
+            this.pw123qweCheckBox.Location = new System.Drawing.Point(3, 447);
             this.pw123qweCheckBox.Name = "pw123qweCheckBox";
             this.pw123qweCheckBox.Size = new System.Drawing.Size(84, 16);
             this.pw123qweCheckBox.TabIndex = 25;
@@ -397,7 +403,7 @@
             // pw123qweButton
             // 
             this.pw123qweButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.pw123qweButton.Location = new System.Drawing.Point(84, 405);
+            this.pw123qweButton.Location = new System.Drawing.Point(84, 442);
             this.pw123qweButton.Name = "pw123qweButton";
             this.pw123qweButton.Size = new System.Drawing.Size(24, 24);
             this.pw123qweButton.TabIndex = 10;
@@ -421,11 +427,80 @@
             this.fileTransBGWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.fileTransBGWorker_ProgressChanged);
             this.fileTransBGWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.fileTransBGWorker_RunWorkerCompleted);
             // 
+            // swiftCpButton0
+            // 
+            this.swiftCpButton0.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.swiftCpButton0.Location = new System.Drawing.Point(65, 384);
+            this.swiftCpButton0.Name = "swiftCpButton0";
+            this.swiftCpButton0.Size = new System.Drawing.Size(124, 31);
+            this.swiftCpButton0.TabIndex = 27;
+            this.swiftCpButton0.UseVisualStyleBackColor = true;
+            this.swiftCpButton0.Click += new System.EventHandler(this.swiftCpButton0_Click);
+            // 
+            // swiftCpButton1
+            // 
+            this.swiftCpButton1.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.swiftCpButton1.Location = new System.Drawing.Point(213, 384);
+            this.swiftCpButton1.Name = "swiftCpButton1";
+            this.swiftCpButton1.Size = new System.Drawing.Size(124, 31);
+            this.swiftCpButton1.TabIndex = 28;
+            this.swiftCpButton1.UseVisualStyleBackColor = true;
+            this.swiftCpButton1.Click += new System.EventHandler(this.swiftCpButton1_Click);
+            // 
+            // swiftCpButton2
+            // 
+            this.swiftCpButton2.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.swiftCpButton2.Location = new System.Drawing.Point(361, 384);
+            this.swiftCpButton2.Name = "swiftCpButton2";
+            this.swiftCpButton2.Size = new System.Drawing.Size(124, 31);
+            this.swiftCpButton2.TabIndex = 29;
+            this.swiftCpButton2.UseVisualStyleBackColor = true;
+            this.swiftCpButton2.Click += new System.EventHandler(this.swiftCpButton2_Click);
+            // 
+            // progressLabel
+            // 
+            this.progressLabel.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.progressLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.progressLabel.Location = new System.Drawing.Point(62, 316);
+            this.progressLabel.Name = "progressLabel";
+            this.progressLabel.Size = new System.Drawing.Size(80, 23);
+            this.progressLabel.TabIndex = 30;
+            this.progressLabel.Text = "传输进度:";
+            this.progressLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // swiftCpLabel
+            // 
+            this.swiftCpLabel.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.swiftCpLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.swiftCpLabel.Location = new System.Drawing.Point(27, 354);
+            this.swiftCpLabel.Name = "swiftCpLabel";
+            this.swiftCpLabel.Size = new System.Drawing.Size(649, 23);
+            this.swiftCpLabel.TabIndex = 31;
+            this.swiftCpLabel.Text = "=============================👇快捷命令复制👇=============================";
+            this.swiftCpLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.swiftCpLabel.Click += new System.EventHandler(this.swiftCpLabel_Click);
+            // 
+            // swiftCpButton3
+            // 
+            this.swiftCpButton3.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.swiftCpButton3.Location = new System.Drawing.Point(509, 384);
+            this.swiftCpButton3.Name = "swiftCpButton3";
+            this.swiftCpButton3.Size = new System.Drawing.Size(124, 31);
+            this.swiftCpButton3.TabIndex = 32;
+            this.swiftCpButton3.UseVisualStyleBackColor = true;
+            this.swiftCpButton3.Click += new System.EventHandler(this.swiftCpButton3_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(704, 427);
+            this.ClientSize = new System.Drawing.Size(704, 464);
+            this.Controls.Add(this.swiftCpButton3);
+            this.Controls.Add(this.swiftCpLabel);
+            this.Controls.Add(this.progressLabel);
+            this.Controls.Add(this.swiftCpButton2);
+            this.Controls.Add(this.swiftCpButton1);
+            this.Controls.Add(this.swiftCpButton0);
             this.Controls.Add(this.fileTransProgressBar);
             this.Controls.Add(this.pw123qweButton);
             this.Controls.Add(this.pw123qweCheckBox);
@@ -497,6 +572,12 @@
         private System.Windows.Forms.Button pw123qweButton;
         private System.Windows.Forms.ProgressBar fileTransProgressBar;
         private System.ComponentModel.BackgroundWorker fileTransBGWorker;
+        private System.Windows.Forms.Button swiftCpButton0;
+        private System.Windows.Forms.Button swiftCpButton1;
+        private System.Windows.Forms.Button swiftCpButton2;
+        private System.Windows.Forms.Label progressLabel;
+        private System.Windows.Forms.Label swiftCpLabel;
+        private System.Windows.Forms.Button swiftCpButton3;
     }
 }
 
