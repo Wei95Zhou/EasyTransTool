@@ -33,7 +33,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.2.0";
+        private string sRelVer = "2.3.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -83,6 +83,7 @@ namespace ExtPkgUpdateTool
             duIpDelButton.Enabled = true;
             ruIpDelButton.Enabled = true;
             uploadButton.Enabled = true;
+            pw123qweCheckBox.Enabled = true;
 
             //Init trans type select box
             //Init file path label
@@ -165,31 +166,23 @@ namespace ExtPkgUpdateTool
             }
         }
 
-        static string GetCommand(string line)
-        {
-            int startIndex = line.IndexOf('\'') + 1;
-            int endIndex = line.LastIndexOf('\'');
-            return line.Substring(startIndex, endIndex - startIndex);
-        }
-
-        static string GetExpectedString(string line)
-        {
-            int startIndex = line.IndexOf('\'') + 1;
-            int endIndex = line.LastIndexOf('\'');
-            return line.Substring(startIndex, endIndex - startIndex);
-        }
-
         string scriptPath;
 
         private void uploadButton_Click(object sender, EventArgs e)
         {
+            fileTransBGWorker.ReportProgress(0);
+            disableAllObject();
+            fileTransBGWorker.ReportProgress(1);
             // Save the IP address and refresh the ComboBox
             string duIpAddress = DuIpComboBox.Text;
             string ruIpAddress = RuIpComboBox.Text;
             string fsuIpAddress = FsuIpComboBox.Text;
             string ensfAddress = EnsfComboBox.Text;
-
-            disableAllObject();
+            var ipAddress = new object[4];
+            ipAddress[0] = duIpAddress;
+            ipAddress[1] = ruIpAddress;
+            ipAddress[2] = fsuIpAddress;
+            ipAddress[3] = ensfAddress;
 
             scriptPath = fileTransScriptPreCheck();
             if (scriptPath == String.Empty)
@@ -197,26 +190,50 @@ namespace ExtPkgUpdateTool
                 initAllObject();
                 return;
             }
+            fileTransBGWorker.ReportProgress(3);
             if (!fileTransIpPreCheck(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress))
             {
                 initAllObject();
                 return;
             }
+            fileTransBGWorker.ReportProgress(5);
             if (!fileTransPathPreCheck())
             {
                 initAllObject();
                 return;
             }
-            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            fileTransBGWorker.RunWorkerAsync(ipAddress);
+        }
+
+        private void fileTransBGWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var receiver = e.Argument as object[];
+            string duIpAddress = (string)receiver[0];
+            string ruIpAddress = (string)receiver[0];
+            string fsuIpAddress = (string)receiver[0];
+            string ensfAddress = (string)receiver[0];
+            fileTransBGWorker.ReportProgress(8);
+            if (string.Equals("PC->RU", transModeTypeOp.GetType()))
             {
                 upload_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
             }
-            else if(string.Equals("RU->PC", TransModeSelBox.Text))
+            else if (string.Equals("RU->PC", transModeTypeOp.GetType()))
             {
                 download_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
             }
             initAllObject();
             return;
+        }
+
+        private void fileTransBGWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            Console.WriteLine("Progress Value: " + e.ProgressPercentage.ToString());
+            this.fileTransProgressBar.Value = e.ProgressPercentage;
+        }
+
+        private void fileTransBGWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //this.fileTransProgressBar.Value = 100;
         }
 
         private void disableAllObject()
@@ -235,6 +252,7 @@ namespace ExtPkgUpdateTool
             ensfDelButton.Enabled = false;
             dlFileName.Enabled = false;
             uploadButton.Enabled = false;
+            pw123qweCheckBox.Enabled = false;
             return;
         }
 
@@ -325,7 +343,7 @@ namespace ExtPkgUpdateTool
 
         private bool fileTransPathPreCheck()
         {
-            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            if (string.Equals("PC->RU", transModeTypeOp.GetType()))
             {
                 if (!File.Exists(uploadFilePathOp.GetPath()))
                 {
@@ -334,7 +352,7 @@ namespace ExtPkgUpdateTool
                 }
                 return true;
             }
-            else if (string.Equals("RU->PC", TransModeSelBox.Text))
+            else if (string.Equals("RU->PC", transModeTypeOp.GetType()))
             {
                 if (!Directory.Exists(dlFileSavePathOp.GetPath()))
                 {
@@ -350,121 +368,126 @@ namespace ExtPkgUpdateTool
         {
             // Start update procedure
             // 1.Put file to 116.8 server
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            string filePath = "/home/zw/" + Environment.UserName + "/";
-
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            //string filePath = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+            /*SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
+            string filePathInServer = "/home/zw/" + Environment.UserName + "/";*/
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
+            string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
-            string fileUploadTempName = uploadFilePathOp.getSelFileName() + timeStamp;
+            string fileUploadFileName = uploadFilePathOp.getSelFileName();
+
+            string tempFilePathInServer = filePathInServer + timeStamp;
 
             //每一句命令都需要检查返回值
+            fileTransBGWorker.ReportProgress(10);
             if (true == serverSshOp.Connect())
             {
-                serverSshOp.RunCommand("mkdir -p " + filePath);
+                serverSshOp.RunCommand("mkdir -p " + tempFilePathInServer);
                 serverSshOp.Disconnect();
             }
+            fileTransBGWorker.ReportProgress(15);
             if (true == serverSftpOp.Connect())
             {
-                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), filePath + fileUploadTempName);
+                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), tempFilePathInServer + fileUploadFileName);
                 serverSftpOp.Disconnect();
             }
+            fileTransBGWorker.ReportProgress(40);
             if (true == serverSshOp.Connect())
             {
-                if (true == serverSshOp.StartShell())
+                if(false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 40))
                 {
-                    try
-                    {
-                        using (StreamReader reader = new StreamReader(scriptPath))
-                        {
-                            string line;
-                            logFile.ClearFile();
-                            logFile.AppendToFile("running " + scriptPath + "\n");
-                            while ((line = reader.ReadLine()) != null)
-                            {
-                                line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
-                                if (false == scriptExecuter(line, serverSshOp))
-                                {
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Failed to read file: " + ex.Message);
-                    }
+                    serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                    serverSshOp.Disconnect();
+                    return;
                 }
-                //serverSshOp.RunCommand("rm " + filePath + fileUploadTempName);
+                serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
                 serverSshOp.Disconnect();
             }
+            fileTransBGWorker.ReportProgress(100);
         }
 
         private void download_update_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
         {
             // Start update procedure
             // 1.Put file to 116.8 server
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrTest.GetName(), usrTest.GetPW());
-            string filePathInServer = "/tmp/";
-            //SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            //SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
-            //string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+            /*SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
+            string filePathInServer = "/tmp/";*/
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
+            string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
-            
+
 
             //每一句命令都需要检查返回值
+            fileTransBGWorker.ReportProgress(10);
             if (true == serverSshOp.Connect())
             {
                 serverSshOp.RunCommand("mkdir -p " + tempFilePathInServer);
-                if (true == serverSshOp.StartShell())
+                if(false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 10))
                 {
-                    try
-                    {
-                        using (StreamReader reader = new StreamReader(scriptPath))
-                        {
-                            string line;
-                            logFile.ClearFile();
-                            logFile.AppendToFile("running " + scriptPath + "\n");
-                            while ((line = reader.ReadLine()) != null)
-                            {
-                                line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
-                                if (false == scriptExecuter(line, serverSshOp))
-                                {
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Failed to read file: " + ex.Message);
-                    }
+                    serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                    serverSshOp.Disconnect();
+                    return;
                 }
                 serverSshOp.Disconnect();
             }
+            fileTransBGWorker.ReportProgress(70);
             if (true == serverSftpOp.Connect())
             {
                 //考虑在脚本里实现文件下载过程的调用，这样可以更好进行进度条的控制
                 serverSftpOp.DownloadFile(tempFilePathInServer, dlFileSavePathOp.GetPath());
                 serverSftpOp.Disconnect();
             }
+            fileTransBGWorker.ReportProgress(95);
             if (true == serverSshOp.Connect())
             {
-                //serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
                 serverSshOp.Disconnect();
             }
+            fileTransBGWorker.ReportProgress(100);
+        }
+
+        private bool script_execute_core(SshOp serverSshOp, string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress, string timeStamp, int transBasePercent)
+        {
+            int scriptLineCnt = File.ReadLines(scriptPath).Count();
+            int lineCounter = 0;
+            if (true == serverSshOp.StartShell())
+            {
+                try
+                {
+                    using (StreamReader reader = new StreamReader(scriptPath))
+                    {
+                        string line;
+                        logFile.ClearFile();
+                        logFile.AppendToFile("running " + scriptPath + "\n");
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
+                            if((line == string.Empty) || (false == scriptExecuter(line, serverSshOp)))
+                            {
+                                return false;
+                            }
+                            lineCounter++;
+                            fileTransBGWorker.ReportProgress(transBasePercent + (int)((lineCounter / scriptLineCnt) * 60));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed to read file: " + ex.Message);
+                }
+            }
+            return true;
         }
 
         private string scriptUpdater(string line, string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress, string timeStamp)
         {
             string sUpdatedScript = line;
-            string fileUploadTempName = uploadFilePathOp.getSelFileName() + timeStamp;
             string userInputFilePathInRU = dlFilPathInRuOp.GetPath();
             string filePathInRU;
             string fileNameInRU;
@@ -480,7 +503,6 @@ namespace ExtPkgUpdateTool
                 else
                 {
                     MessageBox.Show("下载失败，请检查要获取的文件路径是否正确！");
-                    CmdWindow.Text = "";
                     return string.Empty;
                 }
             }
@@ -519,7 +541,6 @@ namespace ExtPkgUpdateTool
             sUpdatedScript = sUpdatedScript.Replace("FSU_USER_PW", usrFsuUser.GetPW());
             sUpdatedScript = sUpdatedScript.Replace("FSU_ROOT_NAME", usrFsuRoot.GetName());
             sUpdatedScript = sUpdatedScript.Replace("FSU_ROOT_PW", usrFsuRoot.GetPW());
-            sUpdatedScript = sUpdatedScript.Replace("UPLOAD_FILE_TRANS_NAME", fileUploadTempName);
             sUpdatedScript = sUpdatedScript.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
             sUpdatedScript = sUpdatedScript.Replace("DOWNLOAD_FILE_PATH_IN_RU", filePathInRU);
             sUpdatedScript = sUpdatedScript.Replace("DOWNLOAD_FILE_NAME_IN_RU", fileNameInRU);
@@ -527,9 +548,7 @@ namespace ExtPkgUpdateTool
             return sUpdatedScript;
         }
         private bool scriptExecuter(string script, SshOp serverSshOp)
-        {            
-            CmdWindow.Text = script;
-            CmdWindow.Refresh();
+        {
             Console.WriteLine(script);
             logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + script + "\n");
             if (script.StartsWith("#") || (script == string.Empty))
@@ -552,7 +571,6 @@ namespace ExtPkgUpdateTool
                 if (false == serverSshOp.WaitForOutput_Timer(expectedString))
                 {
                     MessageBox.Show("下载失败，请检查IP配置！");
-                    CmdWindow.Text = "";
                     return false;
                 }
             }
@@ -561,6 +579,20 @@ namespace ExtPkgUpdateTool
                 Console.WriteLine("Invalid command: " + script);
             }
             return true;
+        }
+
+        static string GetCommand(string line)
+        {
+            int startIndex = line.IndexOf('\'') + 1;
+            int endIndex = line.LastIndexOf('\'');
+            return line.Substring(startIndex, endIndex - startIndex);
+        }
+
+        static string GetExpectedString(string line)
+        {
+            int startIndex = line.IndexOf('\'') + 1;
+            int endIndex = line.LastIndexOf('\'');
+            return line.Substring(startIndex, endIndex - startIndex);
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -645,36 +677,6 @@ namespace ExtPkgUpdateTool
         {
             fsuIpOp.DeleteIPAddress(FsuIpComboBox.Text);
             ComboBox_Refresh(FsuIpComboBox, fsuIpOp, FsuIpComboBox.SelectedIndex, fsuIpDelButton);
-        }
-
-        private void DuIpComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void RuIpComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
         }
 
         private void InitializeSystemTray()
@@ -814,11 +816,6 @@ namespace ExtPkgUpdateTool
             {
                 this.WindowState = FormWindowState.Normal;
             }
-        }
-
-        private void label7_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void TransModeSelBox_SelectedIndexChanged(object sender, EventArgs e)

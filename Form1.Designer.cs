@@ -47,7 +47,6 @@
             this.fsuIpDelButton = new System.Windows.Forms.Button();
             this.FsuIpComboBox = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.CmdWindow = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.newVerRelPath = new System.Windows.Forms.TextBox();
             this.hintLabel = new System.Windows.Forms.Label();
@@ -60,6 +59,8 @@
             this.dlHintButton = new System.Windows.Forms.Button();
             this.pw123qweCheckBox = new System.Windows.Forms.CheckBox();
             this.pw123qweButton = new System.Windows.Forms.Button();
+            this.fileTransProgressBar = new System.Windows.Forms.ProgressBar();
+            this.fileTransBGWorker = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // filePathSel
@@ -120,7 +121,6 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "连接类型:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label4
             // 
@@ -169,7 +169,6 @@
             this.DuIpComboBox.Name = "DuIpComboBox";
             this.DuIpComboBox.Size = new System.Drawing.Size(400, 24);
             this.DuIpComboBox.TabIndex = 5;
-            this.DuIpComboBox.SelectedIndexChanged += new System.EventHandler(this.DuIpComboBox_SelectedIndexChanged);
             // 
             // RuIpComboBox
             // 
@@ -182,7 +181,6 @@
             this.RuIpComboBox.Name = "RuIpComboBox";
             this.RuIpComboBox.Size = new System.Drawing.Size(400, 24);
             this.RuIpComboBox.TabIndex = 7;
-            this.RuIpComboBox.SelectedIndexChanged += new System.EventHandler(this.RuIpComboBox_SelectedIndexChanged);
             // 
             // duIpDelButton
             // 
@@ -245,7 +243,6 @@
             this.label5.TabIndex = 13;
             this.label5.Text = "网络设备:";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
             // fsuIpDelButton
             // 
@@ -283,30 +280,16 @@
             this.label6.Text = "FSU IP:";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // CmdWindow
-            // 
-            this.CmdWindow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.CmdWindow.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.CmdWindow.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.CmdWindow.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.CmdWindow.Location = new System.Drawing.Point(148, 315);
-            this.CmdWindow.Name = "CmdWindow";
-            this.CmdWindow.Size = new System.Drawing.Size(400, 23);
-            this.CmdWindow.TabIndex = 0;
-            this.CmdWindow.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // newVerRelPath
             // 
             this.newVerRelPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.newVerRelPath.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.newVerRelPath.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.newVerRelPath.Location = new System.Drawing.Point(84, 372);
+            this.newVerRelPath.Location = new System.Drawing.Point(84, 410);
             this.newVerRelPath.Name = "newVerRelPath";
             this.newVerRelPath.ReadOnly = true;
             this.newVerRelPath.Size = new System.Drawing.Size(605, 14);
@@ -319,7 +302,7 @@
             // 
             this.hintLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.hintLabel.AutoSize = true;
-            this.hintLabel.Location = new System.Drawing.Point(465, 356);
+            this.hintLabel.Location = new System.Drawing.Point(465, 394);
             this.hintLabel.Name = "hintLabel";
             this.hintLabel.Size = new System.Drawing.Size(227, 12);
             this.hintLabel.TabIndex = 0;
@@ -354,7 +337,6 @@
             this.label7.TabIndex = 10;
             this.label7.Text = "传输方向:";
             this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label7.Click += new System.EventHandler(this.label7_Click);
             // 
             // transModeSwitchButton
             // 
@@ -405,7 +387,7 @@
             // 
             this.pw123qweCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.pw123qweCheckBox.AutoSize = true;
-            this.pw123qweCheckBox.Location = new System.Drawing.Point(3, 372);
+            this.pw123qweCheckBox.Location = new System.Drawing.Point(3, 410);
             this.pw123qweCheckBox.Name = "pw123qweCheckBox";
             this.pw123qweCheckBox.Size = new System.Drawing.Size(84, 16);
             this.pw123qweCheckBox.TabIndex = 25;
@@ -415,7 +397,7 @@
             // pw123qweButton
             // 
             this.pw123qweButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.pw123qweButton.Location = new System.Drawing.Point(84, 367);
+            this.pw123qweButton.Location = new System.Drawing.Point(84, 405);
             this.pw123qweButton.Name = "pw123qweButton";
             this.pw123qweButton.Size = new System.Drawing.Size(24, 24);
             this.pw123qweButton.TabIndex = 10;
@@ -423,11 +405,28 @@
             this.pw123qweButton.UseVisualStyleBackColor = true;
             this.pw123qweButton.Click += new System.EventHandler(this.button1_Click);
             // 
+            // fileTransProgressBar
+            // 
+            this.fileTransProgressBar.Location = new System.Drawing.Point(148, 316);
+            this.fileTransProgressBar.Name = "fileTransProgressBar";
+            this.fileTransProgressBar.Size = new System.Drawing.Size(400, 23);
+            this.fileTransProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.fileTransProgressBar.TabIndex = 26;
+            // 
+            // fileTransBGWorker
+            // 
+            this.fileTransBGWorker.WorkerReportsProgress = true;
+            this.fileTransBGWorker.WorkerSupportsCancellation = true;
+            this.fileTransBGWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.fileTransBGWorker_DoWork);
+            this.fileTransBGWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.fileTransBGWorker_ProgressChanged);
+            this.fileTransBGWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.fileTransBGWorker_RunWorkerCompleted);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(704, 389);
+            this.ClientSize = new System.Drawing.Size(704, 427);
+            this.Controls.Add(this.fileTransProgressBar);
             this.Controls.Add(this.pw123qweButton);
             this.Controls.Add(this.pw123qweCheckBox);
             this.Controls.Add(this.dlHintButton);
@@ -438,7 +437,6 @@
             this.Controls.Add(this.label7);
             this.Controls.Add(this.hintLabel);
             this.Controls.Add(this.newVerRelPath);
-            this.Controls.Add(this.CmdWindow);
             this.Controls.Add(this.fsuIpDelButton);
             this.Controls.Add(this.FsuIpComboBox);
             this.Controls.Add(this.label6);
@@ -460,7 +458,6 @@
             this.MinimumSize = new System.Drawing.Size(720, 410);
             this.Name = "Form1";
             this.Text = "EasyTransTool(Developed by wei.zhou@FW)";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -486,7 +483,6 @@
         private System.Windows.Forms.Button fsuIpDelButton;
         private System.Windows.Forms.ComboBox FsuIpComboBox;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label CmdWindow;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox newVerRelPath;
         private System.Windows.Forms.Label hintLabel;
@@ -499,6 +495,8 @@
         private System.Windows.Forms.Button dlHintButton;
         private System.Windows.Forms.CheckBox pw123qweCheckBox;
         private System.Windows.Forms.Button pw123qweButton;
+        private System.Windows.Forms.ProgressBar fileTransProgressBar;
+        private System.ComponentModel.BackgroundWorker fileTransBGWorker;
     }
 }
 
