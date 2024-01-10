@@ -295,7 +295,7 @@
             this.newVerRelPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.newVerRelPath.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.newVerRelPath.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.newVerRelPath.Location = new System.Drawing.Point(84, 447);
+            this.newVerRelPath.Location = new System.Drawing.Point(84, 444);
             this.newVerRelPath.Name = "newVerRelPath";
             this.newVerRelPath.ReadOnly = true;
             this.newVerRelPath.Size = new System.Drawing.Size(605, 14);
@@ -308,7 +308,7 @@
             // 
             this.hintLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.hintLabel.AutoSize = true;
-            this.hintLabel.Location = new System.Drawing.Point(465, 431);
+            this.hintLabel.Location = new System.Drawing.Point(465, 428);
             this.hintLabel.Name = "hintLabel";
             this.hintLabel.Size = new System.Drawing.Size(227, 12);
             this.hintLabel.TabIndex = 0;
@@ -393,7 +393,7 @@
             // 
             this.pw123qweCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.pw123qweCheckBox.AutoSize = true;
-            this.pw123qweCheckBox.Location = new System.Drawing.Point(3, 447);
+            this.pw123qweCheckBox.Location = new System.Drawing.Point(3, 444);
             this.pw123qweCheckBox.Name = "pw123qweCheckBox";
             this.pw123qweCheckBox.Size = new System.Drawing.Size(84, 16);
             this.pw123qweCheckBox.TabIndex = 25;
@@ -403,7 +403,7 @@
             // pw123qweButton
             // 
             this.pw123qweButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.pw123qweButton.Location = new System.Drawing.Point(84, 442);
+            this.pw123qweButton.Location = new System.Drawing.Point(84, 439);
             this.pw123qweButton.Name = "pw123qweButton";
             this.pw123qweButton.Size = new System.Drawing.Size(24, 24);
             this.pw123qweButton.TabIndex = 10;
@@ -413,6 +413,8 @@
             // 
             // fileTransProgressBar
             // 
+            this.fileTransProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.fileTransProgressBar.Location = new System.Drawing.Point(148, 316);
             this.fileTransProgressBar.Name = "fileTransProgressBar";
             this.fileTransProgressBar.Size = new System.Drawing.Size(400, 23);
@@ -429,6 +431,7 @@
             // 
             // swiftCpButton0
             // 
+            this.swiftCpButton0.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.swiftCpButton0.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.swiftCpButton0.Location = new System.Drawing.Point(65, 384);
             this.swiftCpButton0.Name = "swiftCpButton0";
@@ -439,6 +442,7 @@
             // 
             // swiftCpButton1
             // 
+            this.swiftCpButton1.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.swiftCpButton1.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.swiftCpButton1.Location = new System.Drawing.Point(213, 384);
             this.swiftCpButton1.Name = "swiftCpButton1";
@@ -449,6 +453,7 @@
             // 
             // swiftCpButton2
             // 
+            this.swiftCpButton2.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.swiftCpButton2.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.swiftCpButton2.Location = new System.Drawing.Point(361, 384);
             this.swiftCpButton2.Name = "swiftCpButton2";
@@ -470,6 +475,7 @@
             // 
             // swiftCpLabel
             // 
+            this.swiftCpLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.swiftCpLabel.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.swiftCpLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.swiftCpLabel.Location = new System.Drawing.Point(27, 354);
@@ -482,6 +488,7 @@
             // 
             // swiftCpButton3
             // 
+            this.swiftCpButton3.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.swiftCpButton3.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.swiftCpButton3.Location = new System.Drawing.Point(509, 384);
             this.swiftCpButton3.Name = "swiftCpButton3";
@@ -494,7 +501,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(704, 464);
+            this.ClientSize = new System.Drawing.Size(704, 461);
             this.Controls.Add(this.swiftCpButton3);
             this.Controls.Add(this.swiftCpLabel);
             this.Controls.Add(this.progressLabel);
@@ -530,7 +537,7 @@
             this.Controls.Add(this.fielPathLabel);
             this.Controls.Add(this.filePath);
             this.Controls.Add(this.filePathSel);
-            this.MinimumSize = new System.Drawing.Size(720, 410);
+            this.MinimumSize = new System.Drawing.Size(720, 500);
             this.Name = "Form1";
             this.Text = "EasyTransTool(Developed by wei.zhou@FW)";
             this.ResumeLayout(false);

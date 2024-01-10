@@ -35,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.4.0";
+        private string sRelVer = "2.4.1";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -188,9 +188,9 @@ namespace ExtPkgUpdateTool
 
         private void uploadButton_Click(object sender, EventArgs e)
         {
-            fileTransBGWorker.ReportProgress(0);
-            disableAllObject();
-            fileTransBGWorker.ReportProgress(1);
+            fileTransProgressBar.Style = ProgressBarStyle.Continuous;
+            fileTransProgressBar.Value = 0;
+
             // Save the IP address and refresh the ComboBox
             string duIpAddress = DuIpComboBox.Text;
             string ruIpAddress = RuIpComboBox.Text;
@@ -203,23 +203,17 @@ namespace ExtPkgUpdateTool
             ipAddress[3] = ensfAddress;
 
             scriptPath = fileTransScriptPreCheck();
-            if (scriptPath == String.Empty)
-            {
-                initAllObject();
-                return;
-            }
-            fileTransBGWorker.ReportProgress(3);
-            if (!fileTransIpPreCheck(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress))
-            {
-                initAllObject();
-                return;
-            }
-            fileTransBGWorker.ReportProgress(5);
-            if (!fileTransPathPreCheck())
-            {
-                initAllObject();
-                return;
-            }
+
+            if (scriptPath == String.Empty) return;
+            fileTransProgressBar.Value = 3;
+
+            if (!fileTransIpPreCheck(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress)) return;
+            fileTransProgressBar.Value = 5;
+
+            if (!fileTransPathPreCheck()) return;
+
+            disableAllObject();
+
             fileTransBGWorker.RunWorkerAsync(ipAddress);
         }
 
@@ -227,9 +221,9 @@ namespace ExtPkgUpdateTool
         {
             var receiver = e.Argument as object[];
             string duIpAddress = (string)receiver[0];
-            string ruIpAddress = (string)receiver[0];
-            string fsuIpAddress = (string)receiver[0];
-            string ensfAddress = (string)receiver[0];
+            string ruIpAddress = (string)receiver[1];
+            string fsuIpAddress = (string)receiver[2];
+            string ensfAddress = (string)receiver[3];
             fileTransBGWorker.ReportProgress(8);
             if (string.Equals("PC->RU", transModeTypeOp.GetType()))
             {
@@ -251,7 +245,7 @@ namespace ExtPkgUpdateTool
 
         private void fileTransBGWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            //this.fileTransProgressBar.Value = 100;
+            //fileTransProgressBar.Style = ProgressBarStyle.Blocks;
         }
 
         private void disableAllObject()
@@ -308,11 +302,6 @@ namespace ExtPkgUpdateTool
 
         private bool fileTransIpPreCheck(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
         {
-            if (!File.Exists(uploadFilePathOp.GetPath()))
-            {
-                MessageBox.Show("本地文件不存在！");
-                return false;
-            }
             if (!File.Exists(scriptPath))
             {
                 MessageBox.Show("升级脚本不存在！");
