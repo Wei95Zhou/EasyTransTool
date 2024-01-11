@@ -35,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.4.1";
+        private string sRelVer = "2.4.2";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -188,7 +188,6 @@ namespace ExtPkgUpdateTool
 
         private void uploadButton_Click(object sender, EventArgs e)
         {
-            fileTransProgressBar.Style = ProgressBarStyle.Continuous;
             fileTransProgressBar.Value = 0;
 
             // Save the IP address and refresh the ComboBox
@@ -245,7 +244,10 @@ namespace ExtPkgUpdateTool
 
         private void fileTransBGWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            //fileTransProgressBar.Style = ProgressBarStyle.Blocks;
+            if (100 != fileTransProgressBar.Value)
+            {
+                fileTransProgressBar.Value = 0;
+            }
         }
 
         private void disableAllObject()
@@ -397,7 +399,7 @@ namespace ExtPkgUpdateTool
             fileTransBGWorker.ReportProgress(15);
             if (true == serverSftpOp.Connect())
             {
-                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), tempFilePathInServer + fileUploadFileName);
+                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), tempFilePathInServer + "/" + fileUploadFileName);
                 serverSftpOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(40);
@@ -461,8 +463,8 @@ namespace ExtPkgUpdateTool
 
         private bool script_execute_core(SshOp serverSshOp, string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress, string timeStamp, int transBasePercent)
         {
-            int scriptLineCnt = File.ReadLines(scriptPath).Count();
-            int lineCounter = 0;
+            double scriptLineCnt = File.ReadLines(scriptPath).Count();
+            double lineCounter = 0;
             if (true == serverSshOp.StartShell())
             {
                 try
