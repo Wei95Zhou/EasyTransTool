@@ -35,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.4.3";
+        private string sRelVer = "2.5.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -150,19 +150,40 @@ namespace ExtPkgUpdateTool
                 OpenFileDialog fileDialog = new OpenFileDialog();
                 fileDialog.Title = "选择要上传或升级的文件";
                 fileDialog.Filter = "所有文件|*.*";
+                fileDialog.Multiselect = true;
                 fileDialog.InitialDirectory = uploadFilePathOp.GetPath();
 
                 if (fileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string selectedFilePath = fileDialog.FileName;
-                    if (uploadFilePathOp.FileNameValid(selectedFilePath))
+                    string[] selectedFilePaths = fileDialog.FileNames;
+                    bool bPathDeleteFlag = false;
+                    foreach (string filePath in selectedFilePaths)
                     {
-                        filePath.Text = selectedFilePath;
-                        uploadFilePathOp.SavePath(selectedFilePath);
+                        if (uploadFilePathOp.FileNameValid(filePath))
+                        {
+                            if (bPathDeleteFlag == false)
+                            {
+                                uploadFilePathOp.DeletePath();
+                                bPathDeleteFlag = true;
+                            }
+                            uploadFilePathOp.SavePath(filePath, false);
+                        }
+                        else
+                        {
+                            MessageBox.Show("文件名存在不支持的字符，仅支持A~Za~z-_.:");
+                        }
                     }
-                    else
+                    for (int i = 0; i < uploadFilePathOp.PathCount(); i++)
                     {
-                        MessageBox.Show("文件名存在不支持的字符，仅支持A~Za~z-_.:");
+                        if (i == 0)
+                        {
+                            filePath.Text = uploadFilePathOp.GetPathByIndex(i);
+                        }
+                        else
+                        {
+                            Console.WriteLine(uploadFilePathOp.getSelFileNameByIndex(i));
+                            filePath.Text += "|" + uploadFilePathOp.getSelFileNameByIndex(i);
+                        }
                     }
                 }
             }
@@ -178,7 +199,7 @@ namespace ExtPkgUpdateTool
                     if (result == DialogResult.OK)
                     {
                         filePath.Text = folderBrowserDialog.SelectedPath;
-                        dlFileSavePathOp.SavePath(folderBrowserDialog.SelectedPath);
+                        dlFileSavePathOp.SavePath(folderBrowserDialog.SelectedPath, true);
                     }
                 }
             }
@@ -330,7 +351,7 @@ namespace ExtPkgUpdateTool
                 transModeTypeOp.SaveType(TransModeSelBox.SelectedItem.ToString());
                 if (string.Empty != dlFileName.Text)
                 {
-                    dlFilPathInRuOp.SavePath(dlFileName.Text);
+                    dlFilPathInRuOp.SavePath(dlFileName.Text, true);
                 }
                 duIpOp.SaveIPAddressToFile(TypeSelBox.Text, duIpAddress);
                 ruIpOp.SaveIPAddressToFile(TypeSelBox.Text, ruIpAddress);
@@ -354,10 +375,13 @@ namespace ExtPkgUpdateTool
         {
             if (string.Equals("PC->RU", transModeTypeOp.GetType()))
             {
-                if (!File.Exists(uploadFilePathOp.GetPath()))
+                for (int i = 0; i < uploadFilePathOp.PathCount(); i++)
                 {
-                    MessageBox.Show("本地文件不存在！");
-                    return false;
+                    if (!File.Exists(uploadFilePathOp.GetPathByIndex(i)))
+                    {
+                        MessageBox.Show("本地文件不存在！");
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -385,8 +409,6 @@ namespace ExtPkgUpdateTool
             string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
-            string fileUploadFileName = uploadFilePathOp.getSelFileName();
-
             string tempFilePathInServer = filePathInServer + timeStamp;
 
             //每一句命令都需要检查返回值
@@ -399,7 +421,10 @@ namespace ExtPkgUpdateTool
             fileTransBGWorker.ReportProgress(15);
             if (true == serverSftpOp.Connect())
             {
-                serverSftpOp.UploadFile(uploadFilePathOp.GetPath(), tempFilePathInServer + "/" + fileUploadFileName);
+                for (int i = 0; i < uploadFilePathOp.PathCount(); i++)
+                {
+                    serverSftpOp.UploadFile(uploadFilePathOp.GetPathByIndex(i), tempFilePathInServer + "/" + uploadFilePathOp.getSelFileNameByIndex(i));
+                }
                 serverSftpOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(40);
@@ -852,7 +877,18 @@ namespace ExtPkgUpdateTool
                 fielPathLabel.Text = "文件路径";
                 uploadButton.Text = "上传文件";
                 filePathSel.Text = "选择文件";
-                filePath.Text = uploadFilePathOp.GetPath();
+                for (int i = 0; i < uploadFilePathOp.PathCount(); i++)
+                {
+                    if (i == 0)
+                    {
+                        filePath.Text = uploadFilePathOp.GetPathByIndex(i);
+                    }
+                    else
+                    {
+                        Console.WriteLine(uploadFilePathOp.getSelFileNameByIndex(i));
+                        filePath.Text += "|" + uploadFilePathOp.getSelFileNameByIndex(i);
+                    }
+                }
                 dlFileName.Enabled = false;
                 dlFileName.Text = String.Empty;
                 fileDlLabel.Enabled = false;
@@ -1182,12 +1218,64 @@ namespace FileManagement
             }
             return lastSelectedPath; // or you can throw an exception to indicate an invalid index
         }
-        public void SavePath(string selectedFilePath)
+        public string GetPathByIndex(int iPathIndex)
+        {
+            int iPathId = 0;
+            string lastSelectedPath = sDefaultPath;
+            if (!File.Exists(sFilePath))
+            {
+                lastSelectedPath = sDefaultPath;
+                return lastSelectedPath;
+            }
+            string[] lines = File.ReadAllLines(sFilePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(' ');
+                if (parts.Length >= 2 && parts[0] == sPathType)
+                {
+                    if(iPathId == iPathIndex)
+                    {
+                        lastSelectedPath = line.Substring(line.IndexOf(' ') + 1);
+                        break;
+                    }
+                    iPathId++;
+                }
+            }
+            return lastSelectedPath; // or you can throw an exception to indicate an invalid index
+        }
+        public void SavePath(string selectedFilePath, bool bReplaceFlag)
         {
             string sPathInfo = sPathType + ' ' + selectedFilePath;
             if (!File.Exists(sFilePath))
             {
                 File.WriteAllText(sFilePath, sPathInfo);
+                return;
+            }
+            if (bReplaceFlag == true)
+            {
+                string[] lines = File.ReadAllLines(sFilePath);
+                using (StreamWriter writer = new StreamWriter(sFilePath))
+                {
+                    foreach (string line in lines)
+                    {
+                        if (!line.StartsWith(sPathType))
+                        {
+                            writer.WriteLine(line);
+                        }
+                    }
+                    writer.WriteLine(sPathInfo);
+                }
+            }
+            else
+            {
+                sPathInfo += Environment.NewLine;
+                File.AppendAllText(sFilePath, sPathInfo);
+            }
+        }
+        public void DeletePath()
+        {
+            if (!File.Exists(sFilePath))
+            {
                 return;
             }
             string[] lines = File.ReadAllLines(sFilePath);
@@ -1200,12 +1288,41 @@ namespace FileManagement
                         writer.WriteLine(line);
                     }
                 }
-                writer.WriteLine(sPathInfo);
             }
+        }
+        public int PathCount()
+        {
+            int PathCnt = 0;
+            if (!File.Exists(sFilePath))
+            {
+                return 0;
+            }
+            string[] lines = File.ReadAllLines(sFilePath);
+            foreach (string line in lines)
+            {
+                if (line.StartsWith(sPathType))
+                {
+                    PathCnt++;
+                }
+            }
+            return PathCnt;
         }
         public string getSelFileName()
         {
             string configFilePath = GetPath();
+            int lastIndex = configFilePath.LastIndexOf('\\');
+            if (lastIndex >= 0)
+            {
+                return configFilePath.Substring(lastIndex + 1);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public string getSelFileNameByIndex(int iPathIndex)
+        {
+            string configFilePath = GetPathByIndex(iPathIndex);
             int lastIndex = configFilePath.LastIndexOf('\\');
             if (lastIndex >= 0)
             {

@@ -47,7 +47,6 @@
             this.fsuIpDelButton = new System.Windows.Forms.Button();
             this.FsuIpComboBox = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.newVerRelPath = new System.Windows.Forms.TextBox();
             this.hintLabel = new System.Windows.Forms.Label();
             this.updateChkTimer = new System.Windows.Forms.Timer(this.components);
@@ -285,10 +284,6 @@
             this.label6.TabIndex = 16;
             this.label6.Text = "FSU IP:";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // newVerRelPath
             // 
@@ -565,7 +560,6 @@
         private System.Windows.Forms.Button fsuIpDelButton;
         private System.Windows.Forms.ComboBox FsuIpComboBox;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox newVerRelPath;
         private System.Windows.Forms.Label hintLabel;
         private System.Windows.Forms.Timer updateChkTimer;
