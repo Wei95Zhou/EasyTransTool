@@ -35,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.4.2";
+        private string sRelVer = "2.4.3";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -579,7 +579,7 @@ namespace ExtPkgUpdateTool
                 string expectedString = GetExpectedString(script);
                 if (false == serverSshOp.WaitForOutput_Timer(expectedString))
                 {
-                    MessageBox.Show("下载失败，请检查IP配置！");
+                    MessageBox.Show("传输失败，请检查IP配置及连接情况！");
                     return false;
                 }
             }
