@@ -66,6 +66,7 @@
             this.progressLabel = new System.Windows.Forms.Label();
             this.swiftCpLabel = new System.Windows.Forms.Label();
             this.swiftCpButton3 = new System.Windows.Forms.Button();
+            this.SwiftCopyHelpButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // filePathSel
@@ -492,11 +493,24 @@
             this.swiftCpButton3.UseVisualStyleBackColor = true;
             this.swiftCpButton3.Click += new System.EventHandler(this.swiftCpButton3_Click);
             // 
+            // SwiftCopyHelpButton
+            // 
+            this.SwiftCopyHelpButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.SwiftCopyHelpButton.Location = new System.Drawing.Point(649, 353);
+            this.SwiftCopyHelpButton.Name = "SwiftCopyHelpButton";
+            this.SwiftCopyHelpButton.Size = new System.Drawing.Size(24, 24);
+            this.SwiftCopyHelpButton.TabIndex = 33;
+            this.SwiftCopyHelpButton.TabStop = false;
+            this.SwiftCopyHelpButton.Text = "?";
+            this.SwiftCopyHelpButton.UseVisualStyleBackColor = true;
+            this.SwiftCopyHelpButton.Click += new System.EventHandler(this.SwiftCopyHelpButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 461);
+            this.Controls.Add(this.SwiftCopyHelpButton);
             this.Controls.Add(this.swiftCpButton3);
             this.Controls.Add(this.swiftCpLabel);
             this.Controls.Add(this.progressLabel);
@@ -579,6 +593,7 @@
         private System.Windows.Forms.Label progressLabel;
         private System.Windows.Forms.Label swiftCpLabel;
         private System.Windows.Forms.Button swiftCpButton3;
+        private System.Windows.Forms.Button SwiftCopyHelpButton;
     }
 }
 

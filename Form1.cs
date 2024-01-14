@@ -35,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.5.0";
+        private string sRelVer = "2.5.1";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -949,6 +949,14 @@ namespace ExtPkgUpdateTool
             string command = swiftCpButtionOp.GetCommandByIndex(3);
             command = command.Replace("UPLOAD_FILE_NAME", uploadFilePathOp.getSelFileName());
             Clipboard.SetText(command);
+        }
+
+        private void SwiftCopyHelpButton_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("可以通过修改config\\SwiftCopyButton.cfg配置文件自定义下方快捷复制按钮。\n" +
+                "以PkgUpdate:SWM_PkgUpdate \"/tmp/updateFileName\"为例，\n英文冒号（:）前为按钮名，英文冒号（:）后为点击按钮后被复制的命令\n" +
+                "=====================================================\n" +
+                "如果使用\"UPLOAD_FILE_NAME\"在要复制的命令中，将自动把\"UPLOAD_FILE_NAME\"替换为上一次传输到RU的文件名");
         }
     }
 }
