@@ -35,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.5.1";
+        private string sRelVer = "2.5.2";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -455,7 +455,6 @@ namespace ExtPkgUpdateTool
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
-
 
             //每一句命令都需要检查返回值
             fileTransBGWorker.ReportProgress(10);
@@ -1720,7 +1719,12 @@ namespace RemoteManagement
                     if (!file.IsDirectory)
                     {
                         string remoteFile = remoteFilePath + "/" + file.Name;
-                        string localFile = Path.Combine(localFilePath, file.Name);
+                        string localFileName = CleanFileName(file.Name);
+                        if (localFileName != file.Name)
+                        {
+                            MessageBox.Show($"文件名包含非法字符：{file.Name}，下载的文件名已将该字符删除！", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                        string localFile = Path.Combine(localFilePath, localFileName);
 
                         using (Stream fileStream = File.Create(localFile))
                         {
@@ -1772,6 +1776,12 @@ namespace RemoteManagement
             {
                 sftpClient.Disconnect();
             }
+        }
+
+        private string CleanFileName(string fileName)
+        {
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            return new string(fileName.Where(c => !invalidChars.Contains(c)).ToArray());
         }
     }
 }
