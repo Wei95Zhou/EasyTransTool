@@ -67,6 +67,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileManagement.cs" />
+    <Compile Include="IPAddressManagement.cs" />
+    <Compile Include="RemoteManagement.cs" />
+    <Compile Include="UserManagement.cs" />
+    <Compile Include="SwiftCopyButtonManagement.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -104,8 +109,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="1111.ico" />
-    <Content Include="20230811000656 %281%29.ico" />
-    <Content Include="20230811000656.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
