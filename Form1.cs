@@ -35,7 +35,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.5.2";
+        private string sRelVer = "2.5.3";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -873,7 +873,7 @@ namespace ExtPkgUpdateTool
         {
             if (string.Equals("PC->RU", TransModeSelBox.Text))
             {
-                fielPathLabel.Text = "文件路径";
+                fielPathLabel.Text = "文件路径:";
                 uploadButton.Text = "上传文件";
                 filePathSel.Text = "选择文件";
                 for (int i = 0; i < uploadFilePathOp.PathCount(); i++)
@@ -888,6 +888,7 @@ namespace ExtPkgUpdateTool
                         filePath.Text += "|" + uploadFilePathOp.getSelFileNameByIndex(i);
                     }
                 }
+                filePath.TextAlign = ContentAlignment.MiddleLeft;
                 dlFileName.Enabled = false;
                 dlFileName.Text = String.Empty;
                 fileDlLabel.Enabled = false;
@@ -895,10 +896,11 @@ namespace ExtPkgUpdateTool
             }
             else if (string.Equals("RU->PC", TransModeSelBox.Text))
             {
-                fielPathLabel.Text = "保存路径";
+                fielPathLabel.Text = "保存路径:";
                 uploadButton.Text = "下载文件";
                 filePathSel.Text = "选择路径";
                 filePath.Text = dlFileSavePathOp.GetPath();
+                filePath.TextAlign = ContentAlignment.MiddleLeft;
                 dlFileName.Enabled = true;
                 dlFileName.Text = dlFilPathInRuOp.GetPath();
                 fileDlLabel.Enabled = true;
