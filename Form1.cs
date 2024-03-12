@@ -21,7 +21,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.6.1";
+        private string sRelVer = "2.6.2";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -419,10 +419,12 @@ namespace ExtPkgUpdateTool
                 if(false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 40))
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Upload Fail >> " + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Upload Succuss >> " + "TransResult.log");
                 serverSshOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(100);
@@ -450,6 +452,7 @@ namespace ExtPkgUpdateTool
                 if(false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 10))
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Download Fail >> " + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
@@ -466,6 +469,7 @@ namespace ExtPkgUpdateTool
             if (true == serverSshOp.Connect())
             {
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Download Success >> " + "TransResult.log");
                 serverSshOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(100);
