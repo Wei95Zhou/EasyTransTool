@@ -21,7 +21,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.6.0";
+        private string sRelVer = "2.6.1";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -940,10 +940,17 @@ namespace ExtPkgUpdateTool
 
         private void SwiftCopyHelpButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("可以通过修改config\\SwiftCopyButton.cfg配置文件自定义下方快捷复制按钮。\n" +
-                "以PkgUpdate:SWM_PkgUpdate \"/tmp/updateFileName\"为例，\n英文冒号（:）前为按钮名，英文冒号（:）后为点击按钮后被复制的命令\n" +
+            MessageBox.Show("点击按钮将复制对应的命令到剪贴板！\n" +
                 "=====================================================\n" +
-                "如果使用\"UPLOAD_FILE_NAME\"在要复制的命令中，将自动把\"UPLOAD_FILE_NAME\"替换为上一次传输到RU的文件名");
+                "《自定义快捷复制按钮教程》\n" +
+                "通过修改config\\SwiftCopyButton.cfg文件自定义下方快捷复制按钮。\n" +
+                "以PkgUpdate:SWM_PkgUpdate \"/tmp/updateFileName\"为例，\n" +
+                "英文冒号（:）前为按钮名，英文冒号（:）后为点击按钮后被复制的命令，\n" +
+                "本例中按钮名为SWM_PkgUpdate，点击后复制的命令为SWM_PkgUpdate \"/tmp/updateFileName\"\n" + 
+                "=====================================================\n" +
+                "《自定义快捷复制按钮进阶》\n" +
+                "如果使用\"UPLOAD_FILE_NAME\"在自定义命令中，例如：\nPkgUpdate:SWM_PkgUpdate \"/tmp/UPLOAD_FILE_NAME\"\n" +
+                "则按钮名为SWM_PkgUpdate\nUPLOAD_FILE_NAME将自动替换为传输到RU的文件名");
         }
     }
 }
