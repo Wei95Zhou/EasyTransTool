@@ -232,16 +232,23 @@ namespace RemoteManagement
 
             try
             {
-                var files = sftpClient.ListDirectory(remoteFilePath);
-                foreach (var file in files)
+                var items = sftpClient.ListDirectory(remoteFilePath);
+                foreach (var item in items)
                 {
-                    if (!file.IsDirectory)
+                    if(item.IsDirectory && !item.Name.StartsWith("."))
                     {
-                        string remoteFile = remoteFilePath + "/" + file.Name;
-                        string localFileName = CleanFileName(file.Name);
-                        if (localFileName != file.Name)
+                        string remoteSubDir = remoteFilePath + "/" + item.Name;
+                        string localSubDir = Path.Combine(localFilePath, item.Name);
+                        Directory.CreateDirectory(localSubDir);
+                        DownloadFile(remoteSubDir, localSubDir);
+                    }
+                    else if (!item.IsDirectory)
+                    {
+                        string remoteFile = remoteFilePath + "/" + item.Name;
+                        string localFileName = CleanFileName(item.Name);
+                        if (localFileName != item.Name)
                         {
-                            MessageBox.Show($"文件名包含非法字符：{file.Name}，下载的文件名已将该字符删除！", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show($"文件名包含非法字符：{item.Name}，下载的文件名已将该字符删除！", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                         string localFile = Path.Combine(localFilePath, localFileName);
 
