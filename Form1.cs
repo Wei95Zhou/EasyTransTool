@@ -21,17 +21,16 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.7.0";
+        private string sRelVer = "2.7.1";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
         IPAddressOp ensfOp = new IPAddressOp("ensf", "./config/IpDataSet.cfg");
         IPAddressOp fsuIpOp = new IPAddressOp("FsuIp", "./config/IpDataSet.cfg");
-        IPAddressOp serverIpOp = new IPAddressOp("ServerIp", "./config/IpDataSet.cfg");
+        IPAddressOp serverIpOp = new IPAddressOp("BaseServerIp", "./config/IpDataSet.cfg");
         TypeOp transModeTypeOp = new TypeOp("TransModeType", "PC->RU", "./config/Type.cfg");
         TypeOp devTypeOp = new TypeOp("LinkType", "CDU-RU", "./config/Type.cfg");
         TypeOp pw123qweTypeOp = new TypeOp("SimplePwType", "FALSE", "./config/Type.cfg");/*wether the password is 123qwe*/
-        TypeOp userTypeOp = new TypeOp("UserType", "SZ", "./config/Type.cfg");
         FilePathOp uploadFilePathOp = new FilePathOp("UploadFilePath", "C:", "./config/Path.cfg");
         FilePathOp dlFileSavePathOp = new FilePathOp("DownloadFileSavePath", "C:", "./config/Path.cfg");
         FilePathOp dlFilPathInRuOp = new FilePathOp("FilePathInRu", "/tmp/", "./config/Path.cfg");
@@ -100,8 +99,6 @@ namespace ExtPkgUpdateTool
             //Init CheckBox
             if (string.Equals("TRUE", pw123qweTypeOp.GetType()))
                 pw123qweCheckBox.Checked = true;
-            if (string.Equals("SH", userTypeOp.GetType()))
-                shanghaiUserCheckBox.Checked = true;
 
             ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
             ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
@@ -289,7 +286,6 @@ namespace ExtPkgUpdateTool
             dlFileName.Enabled = false;
             uploadButton.Enabled = false;
             pw123qweCheckBox.Enabled = false;
-            shanghaiUserCheckBox.Enabled = false;
             return;
         }
 
@@ -408,11 +404,7 @@ namespace ExtPkgUpdateTool
             string filePathInServer = "/home/zw/" + Environment.UserName + "/";*/
             SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
             SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
-            string filePathInServer;
-            if (shanghaiUserCheckBox.Checked == true)
-                filePathInServer = "/home/" + usrBaseServer.GetName() + "/EasyTransToolTmp/";
-            else
-                filePathInServer = "/home/" + usrBaseServer.GetName() + "/tmp/" + Environment.UserName + "/";
+            string filePathInServer = "/home/" + usrBaseServer.GetName() + "/EasyTransTool/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
@@ -449,12 +441,12 @@ namespace ExtPkgUpdateTool
                 if((true == failFlag) || (false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 40)))
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Upload Fail >> " + filePathInServer + "TransResult.log");
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Upload Fail >> " + filePathInServer + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Upload Succuss >> " + filePathInServer + "TransResult.log");
+                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Upload Succuss >> " + filePathInServer + "TransResult.log");
                 serverSshOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(100);
@@ -469,11 +461,7 @@ namespace ExtPkgUpdateTool
             string filePathInServer = "/tmp/";*/
             SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
             SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
-            string filePathInServer;
-            if (shanghaiUserCheckBox.Checked == true)
-                filePathInServer = "/home/" + usrBaseServer.GetName() + "/EasyTransToolTmp/";
-            else
-                filePathInServer = "/home/" + usrBaseServer.GetName() + "/tmp/" + Environment.UserName + "/";
+            string filePathInServer = "/home/" + usrBaseServer.GetName() + "/EasyTransTool/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
@@ -487,7 +475,7 @@ namespace ExtPkgUpdateTool
                 if(false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 10))
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Download Fail >> " + filePathInServer + "TransResult.log");
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Download Fail >> " + filePathInServer + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
@@ -514,12 +502,12 @@ namespace ExtPkgUpdateTool
                 if (true == failFlag)
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Download Fail >> " + filePathInServer + "TransResult.log");
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Download Fail >> " + filePathInServer + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Download Success >> " + filePathInServer + "TransResult.log");
+                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Download Success >> " + filePathInServer + "TransResult.log");
                 serverSshOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(100);
@@ -842,10 +830,7 @@ namespace ExtPkgUpdateTool
             }
             else
             {
-                if (shanghaiUserCheckBox.Checked == true)
-                    MessageBox.Show("暂不支持此功能！");
-                else
-                    MessageBox.Show("当前版本已是最新！");
+                MessageBox.Show("当前版本已是最新！");
             }
         }
 
@@ -853,10 +838,7 @@ namespace ExtPkgUpdateTool
         {
             bool bNewVerRel = false;
             SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrBaseServer.GetName(), usrBaseServer.GetPW());
-            if (shanghaiUserCheckBox.Checked == true) 
-            {
-                return false;
-            }
+
             if (true == serverSshOp.Connect())
             {
                 string sLatestVer = serverSshOp.RunCommand("cat " + newVerChkPathOp.GetPath());
@@ -1014,14 +996,6 @@ namespace ExtPkgUpdateTool
                 "《自定义快捷复制按钮进阶》\n" +
                 "如果使用\"UPLOAD_FILE_NAME\"在自定义命令中，例如：\nPkgUpdate:SWM_PkgUpdate \"/tmp/UPLOAD_FILE_NAME\"\n" +
                 "则按钮名为SWM_PkgUpdate\nUPLOAD_FILE_NAME将自动替换为传输到RU的文件名");
-        }
-
-        private void shanghaiUserCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (shanghaiUserCheckBox.Checked == true)
-                userTypeOp.SaveType("SH");
-            else
-                userTypeOp.SaveType("SZ");
         }
 
         private void pw123qweCheckBox_CheckedChanged(object sender, EventArgs e)

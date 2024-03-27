@@ -67,7 +67,6 @@
             this.swiftCpLabel = new System.Windows.Forms.Label();
             this.swiftCpButton3 = new System.Windows.Forms.Button();
             this.SwiftCopyHelpButton = new System.Windows.Forms.Button();
-            this.shanghaiUserCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // filePathSel
@@ -390,7 +389,7 @@
             // 
             this.pw123qweCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.pw123qweCheckBox.AutoSize = true;
-            this.pw123qweCheckBox.Location = new System.Drawing.Point(83, 444);
+            this.pw123qweCheckBox.Location = new System.Drawing.Point(4, 444);
             this.pw123qweCheckBox.Name = "pw123qweCheckBox";
             this.pw123qweCheckBox.Size = new System.Drawing.Size(84, 16);
             this.pw123qweCheckBox.TabIndex = 25;
@@ -401,7 +400,7 @@
             // pw123qweButton
             // 
             this.pw123qweButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.pw123qweButton.Location = new System.Drawing.Point(164, 439);
+            this.pw123qweButton.Location = new System.Drawing.Point(85, 439);
             this.pw123qweButton.Name = "pw123qweButton";
             this.pw123qweButton.Size = new System.Drawing.Size(24, 24);
             this.pw123qweButton.TabIndex = 10;
@@ -507,24 +506,11 @@
             this.SwiftCopyHelpButton.UseVisualStyleBackColor = true;
             this.SwiftCopyHelpButton.Click += new System.EventHandler(this.SwiftCopyHelpButton_Click);
             // 
-            // shanghaiUserCheckBox
-            // 
-            this.shanghaiUserCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.shanghaiUserCheckBox.AutoSize = true;
-            this.shanghaiUserCheckBox.Location = new System.Drawing.Point(3, 444);
-            this.shanghaiUserCheckBox.Name = "shanghaiUserCheckBox";
-            this.shanghaiUserCheckBox.Size = new System.Drawing.Size(72, 16);
-            this.shanghaiUserCheckBox.TabIndex = 34;
-            this.shanghaiUserCheckBox.Text = "上海用户";
-            this.shanghaiUserCheckBox.UseVisualStyleBackColor = true;
-            this.shanghaiUserCheckBox.CheckedChanged += new System.EventHandler(this.shanghaiUserCheckBox_CheckedChanged);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 461);
-            this.Controls.Add(this.shanghaiUserCheckBox);
             this.Controls.Add(this.SwiftCopyHelpButton);
             this.Controls.Add(this.swiftCpButton3);
             this.Controls.Add(this.swiftCpLabel);
@@ -609,7 +595,6 @@
         private System.Windows.Forms.Label swiftCpLabel;
         private System.Windows.Forms.Button swiftCpButton3;
         private System.Windows.Forms.Button SwiftCopyHelpButton;
-        private System.Windows.Forms.CheckBox shanghaiUserCheckBox;
     }
 }
 
