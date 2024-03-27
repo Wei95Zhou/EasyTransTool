@@ -21,7 +21,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.6.3";
+        private string sRelVer = "2.7.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -30,13 +30,15 @@ namespace ExtPkgUpdateTool
         IPAddressOp serverIpOp = new IPAddressOp("ServerIp", "./config/IpDataSet.cfg");
         TypeOp transModeTypeOp = new TypeOp("TransModeType", "PC->RU", "./config/Type.cfg");
         TypeOp devTypeOp = new TypeOp("LinkType", "CDU-RU", "./config/Type.cfg");
+        TypeOp pw123qweTypeOp = new TypeOp("SimplePwType", "FALSE", "./config/Type.cfg");/*wether the password is 123qwe*/
+        TypeOp userTypeOp = new TypeOp("UserType", "SZ", "./config/Type.cfg");
         FilePathOp uploadFilePathOp = new FilePathOp("UploadFilePath", "C:", "./config/Path.cfg");
         FilePathOp dlFileSavePathOp = new FilePathOp("DownloadFileSavePath", "C:", "./config/Path.cfg");
         FilePathOp dlFilPathInRuOp = new FilePathOp("FilePathInRu", "/tmp/", "./config/Path.cfg");
         FilePathOp newVerPathOp = new FilePathOp("NewVerPath", "C:", "./config/Path.cfg");
         FilePathOp newVerChkPathOp = new FilePathOp("NewVerChkPath", "C:", "./config/Path.cfg");
         UserManager usrTest = new UserManager("./config/UserMng.cfg", "testUser");
-        UserManager usr1168fw = new UserManager("./config/UserMng.cfg", "1168fw");
+        UserManager usrBaseServer = new UserManager("./config/UserMng.cfg", "usrBaseServer");
         UserManager usrRuUser = new UserManager("./config/UserMng.cfg", "ruUser");
         UserManager usrRuRoot = new UserManager("./config/UserMng.cfg", "ruRoot");
         UserManager usrRuUserOld = new UserManager("./config/UserMng.cfg", "ruUserOld");
@@ -74,6 +76,12 @@ namespace ExtPkgUpdateTool
             uploadButton.Enabled = true;
             pw123qweCheckBox.Enabled = true;
 
+            //Check whether need to config Base Server
+            if (string.Equals("USER_NAME", usrBaseServer.GetName()) || string.Equals("PASSWORD", usrBaseServer.GetPW()))
+            {
+                MessageBox.Show("请在config/UserMng.cfg文件中配置服务器的用户名和密码！");
+            }
+
             //Init trans type select box
             //Init file path label
             TransModeSelBox.Items.Clear();
@@ -88,6 +96,12 @@ namespace ExtPkgUpdateTool
             TypeSelBox.Items.Add("CDU-RU");
             TypeSelBox.Items.Add("vDU-FSU-RU");
             TypeSelBox.SelectedItem = devTypeOp.GetType();
+
+            //Init CheckBox
+            if (string.Equals("TRUE", pw123qweTypeOp.GetType()))
+                pw123qweCheckBox.Checked = true;
+            if (string.Equals("SH", userTypeOp.GetType()))
+                shanghaiUserCheckBox.Checked = true;
 
             ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
             ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
@@ -208,6 +222,7 @@ namespace ExtPkgUpdateTool
             ipAddress[2] = fsuIpAddress;
             ipAddress[3] = ensfAddress;
 
+            
             scriptPath = fileTransScriptPreCheck();
 
             if (scriptPath == String.Empty) return;
@@ -274,6 +289,7 @@ namespace ExtPkgUpdateTool
             dlFileName.Enabled = false;
             uploadButton.Enabled = false;
             pw123qweCheckBox.Enabled = false;
+            shanghaiUserCheckBox.Enabled = false;
             return;
         }
 
@@ -390,12 +406,17 @@ namespace ExtPkgUpdateTool
             /*SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
             SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
             string filePathInServer = "/home/zw/" + Environment.UserName + "/";*/
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
-            string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
+            string filePathInServer;
+            if (shanghaiUserCheckBox.Checked == true)
+                filePathInServer = "/home/" + usrBaseServer.GetName() + "/EasyTransToolTmp/";
+            else
+                filePathInServer = "/home/" + usrBaseServer.GetName() + "/tmp/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
+            bool failFlag = false;
 
             //每一句命令都需要检查返回值
             fileTransBGWorker.ReportProgress(10);
@@ -404,19 +425,28 @@ namespace ExtPkgUpdateTool
                 serverSshOp.RunCommand("mkdir -p " + tempFilePathInServer);
                 serverSshOp.Disconnect();
             }
+            else
+            {
+                MessageBox.Show("连接服务器失败！请检查config目录下IpDataSet.cfg和UserMng.cfg文件中服务器IP、用户名和密码配置是否正确！");
+                return;
+            }
             fileTransBGWorker.ReportProgress(15);
             if (true == serverSftpOp.Connect())
             {
                 for (int i = 0; i < uploadFilePathOp.PathCount(); i++)
                 {
-                    serverSftpOp.UploadFile(uploadFilePathOp.GetPathByIndex(i), tempFilePathInServer + "/" + uploadFilePathOp.getSelFileNameByIndex(i));
+                    if (false == serverSftpOp.UploadFile(uploadFilePathOp.GetPathByIndex(i), tempFilePathInServer + "/" + uploadFilePathOp.getSelFileNameByIndex(i)))
+                    {
+                        failFlag = true;
+                        break;
+                    }
                 }
                 serverSftpOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(40);
             if (true == serverSshOp.Connect())
             {
-                if(false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 40))
+                if((true == failFlag) || (false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 40)))
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
                     serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Upload Fail >> " + filePathInServer + "TransResult.log");
@@ -437,12 +467,17 @@ namespace ExtPkgUpdateTool
             /*SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
             SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrTest.GetName(), usrTest.GetPW());
             string filePathInServer = "/tmp/";*/
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
-            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usr1168fw.GetName(), usr1168fw.GetPW());
-            string filePathInServer = "/home/" + usr1168fw.GetName() + "/tmp/" + Environment.UserName + "/";
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
+            SftpOp serverSftpOp = new SftpOp(serverIpOp.GetLastIpAddress(devTypeOp.GetType()), usrBaseServer.GetName(), usrBaseServer.GetPW());
+            string filePathInServer;
+            if (shanghaiUserCheckBox.Checked == true)
+                filePathInServer = "/home/" + usrBaseServer.GetName() + "/EasyTransToolTmp/";
+            else
+                filePathInServer = "/home/" + usrBaseServer.GetName() + "/tmp/" + Environment.UserName + "/";
 
             string timeStamp = Regex.Replace(DateTime.Now.TimeOfDay.ToString(), @"[^\d]", "");
             string tempFilePathInServer = filePathInServer + timeStamp;
+            bool failFlag = false;
 
             //每一句命令都需要检查返回值
             fileTransBGWorker.ReportProgress(10);
@@ -458,16 +493,31 @@ namespace ExtPkgUpdateTool
                 }
                 serverSshOp.Disconnect();
             }
+            else
+            {
+                MessageBox.Show("连接服务器失败！请检查config目录下IpDataSet.cfg和UserMng.cfg文件中服务器IP、用户名和密码配置是否正确！");
+                return;
+            }
             fileTransBGWorker.ReportProgress(70);
             if (true == serverSftpOp.Connect())
             {
                 //考虑在脚本里实现文件下载过程的调用，这样可以更好进行进度条的控制
-                serverSftpOp.DownloadFile(tempFilePathInServer, dlFileSavePathOp.GetPath());
+                if (false == serverSftpOp.DownloadFile(tempFilePathInServer, dlFileSavePathOp.GetPath()))
+                {
+                    failFlag = true;
+                }
                 serverSftpOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(95);
             if (true == serverSshOp.Connect())
             {
+                if (true == failFlag)
+                {
+                    serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Download Fail >> " + filePathInServer + "TransResult.log");
+                    serverSshOp.Disconnect();
+                    return;
+                }
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
                 serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + sRelVer + " Download Success >> " + filePathInServer + "TransResult.log");
                 serverSshOp.Disconnect();
@@ -540,6 +590,8 @@ namespace ExtPkgUpdateTool
             sUpdatedScript = sUpdatedScript.Replace("ENS_F", ensfAddress);
             sUpdatedScript = sUpdatedScript.Replace("FSU_IP_ADDR", fsuIpAddress);
             sUpdatedScript = sUpdatedScript.Replace("RU_IP_ADDR", ruIpAddress);
+            sUpdatedScript = sUpdatedScript.Replace("BASE_SERVER_NAME", usrBaseServer.GetName());
+            sUpdatedScript = sUpdatedScript.Replace("BASE_SERVER_PW", usrBaseServer.GetPW());
             sUpdatedScript = sUpdatedScript.Replace("RU_USER_NAME", usrRuUser.GetName());
             sUpdatedScript = sUpdatedScript.Replace("RU_ROOT_NAME", usrRuRoot.GetName());
             if (pw123qweCheckBox.Checked == true)
@@ -790,14 +842,21 @@ namespace ExtPkgUpdateTool
             }
             else
             {
-                MessageBox.Show("当前版本已是最新！");
+                if (shanghaiUserCheckBox.Checked == true)
+                    MessageBox.Show("暂不支持此功能！");
+                else
+                    MessageBox.Show("当前版本已是最新！");
             }
         }
 
         private bool NewVerCheck()
         {
             bool bNewVerRel = false;
-            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usr1168fw.GetName(), usr1168fw.GetPW());
+            SshOp serverSshOp = new SshOp(serverIpOp.GetLastIpAddress(TypeSelBox.Text), usrBaseServer.GetName(), usrBaseServer.GetPW());
+            if (shanghaiUserCheckBox.Checked == true) 
+            {
+                return false;
+            }
             if (true == serverSshOp.Connect())
             {
                 string sLatestVer = serverSshOp.RunCommand("cat " + newVerChkPathOp.GetPath());
@@ -955,6 +1014,22 @@ namespace ExtPkgUpdateTool
                 "《自定义快捷复制按钮进阶》\n" +
                 "如果使用\"UPLOAD_FILE_NAME\"在自定义命令中，例如：\nPkgUpdate:SWM_PkgUpdate \"/tmp/UPLOAD_FILE_NAME\"\n" +
                 "则按钮名为SWM_PkgUpdate\nUPLOAD_FILE_NAME将自动替换为传输到RU的文件名");
+        }
+
+        private void shanghaiUserCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (shanghaiUserCheckBox.Checked == true)
+                userTypeOp.SaveType("SH");
+            else
+                userTypeOp.SaveType("SZ");
+        }
+
+        private void pw123qweCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (pw123qweCheckBox.Checked == true)
+                pw123qweTypeOp.SaveType("TRUE");
+            else
+                pw123qweTypeOp.SaveType("FALSE");
         }
     }
 }
