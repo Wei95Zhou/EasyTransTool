@@ -263,7 +263,7 @@ namespace RemoteManagement
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to download file from SFTP server: {ex.Message}");
+                MessageBox.Show($"下载文件失败: {ex.Message}");
                 return false;
             }
         }
@@ -286,7 +286,7 @@ namespace RemoteManagement
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to upload file to SFTP server: {ex.Message}" + remoteFilePath);
+                MessageBox.Show($"上传文件失败: {ex.Message}" + remoteFilePath);
                 return false;
             }
         }
