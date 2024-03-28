@@ -32,7 +32,6 @@
             this.filePathSel = new System.Windows.Forms.Button();
             this.filePath = new System.Windows.Forms.Label();
             this.fielPathLabel = new System.Windows.Forms.Label();
-            this.uploadButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.TypeSelBox = new System.Windows.Forms.ComboBox();
@@ -67,6 +66,8 @@
             this.swiftCpLabel = new System.Windows.Forms.Label();
             this.swiftCpButton3 = new System.Windows.Forms.Button();
             this.SwiftCopyHelpButton = new System.Windows.Forms.Button();
+            this.TransSplitButton = new wyDay.Controls.SplitButton();
+            this.TransModeContexMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
             // 
             // filePathSel
@@ -104,18 +105,6 @@
             this.fielPathLabel.TabIndex = 2;
             this.fielPathLabel.Text = "文件路径:";
             this.fielPathLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // uploadButton
-            // 
-            this.uploadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.uploadButton.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uploadButton.Location = new System.Drawing.Point(554, 278);
-            this.uploadButton.Name = "uploadButton";
-            this.uploadButton.Size = new System.Drawing.Size(81, 23);
-            this.uploadButton.TabIndex = 10;
-            this.uploadButton.Text = "上传文件";
-            this.uploadButton.UseVisualStyleBackColor = true;
-            this.uploadButton.Click += new System.EventHandler(this.uploadButton_Click);
             // 
             // label2
             // 
@@ -393,7 +382,7 @@
             this.pw123qweCheckBox.Name = "pw123qweCheckBox";
             this.pw123qweCheckBox.Size = new System.Drawing.Size(84, 16);
             this.pw123qweCheckBox.TabIndex = 25;
-            this.pw123qweCheckBox.Text = "老机型密码";
+            this.pw123qweCheckBox.Text = "老密码机型";
             this.pw123qweCheckBox.UseVisualStyleBackColor = true;
             this.pw123qweCheckBox.CheckedChanged += new System.EventHandler(this.pw123qweCheckBox_CheckedChanged);
             // 
@@ -506,11 +495,32 @@
             this.SwiftCopyHelpButton.UseVisualStyleBackColor = true;
             this.SwiftCopyHelpButton.Click += new System.EventHandler(this.SwiftCopyHelpButton_Click);
             // 
+            // TransSplitButton
+            // 
+            this.TransSplitButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.TransSplitButton.AutoSize = true;
+            this.TransSplitButton.ContextMenuStrip = this.TransModeContexMenuStrip;
+            this.TransSplitButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.TransSplitButton.Location = new System.Drawing.Point(554, 278);
+            this.TransSplitButton.Name = "TransSplitButton";
+            this.TransSplitButton.Size = new System.Drawing.Size(98, 23);
+            this.TransSplitButton.SplitMenuStrip = this.TransModeContexMenuStrip;
+            this.TransSplitButton.TabIndex = 35;
+            this.TransSplitButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.TransSplitButton.UseVisualStyleBackColor = true;
+            this.TransSplitButton.Click += new System.EventHandler(this.TransSplitButton_Click);
+            // 
+            // TransModeContexMenuStrip
+            // 
+            this.TransModeContexMenuStrip.Name = "TransModeContexMenuStrip";
+            this.TransModeContexMenuStrip.Size = new System.Drawing.Size(61, 4);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 461);
+            this.Controls.Add(this.TransSplitButton);
             this.Controls.Add(this.SwiftCopyHelpButton);
             this.Controls.Add(this.swiftCpButton3);
             this.Controls.Add(this.swiftCpLabel);
@@ -543,7 +553,6 @@
             this.Controls.Add(this.TypeSelBox);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.uploadButton);
             this.Controls.Add(this.fielPathLabel);
             this.Controls.Add(this.filePath);
             this.Controls.Add(this.filePathSel);
@@ -560,7 +569,6 @@
         private System.Windows.Forms.Button filePathSel;
         private System.Windows.Forms.Label filePath;
         private System.Windows.Forms.Label fielPathLabel;
-        private System.Windows.Forms.Button uploadButton;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox TypeSelBox;
@@ -595,6 +603,8 @@
         private System.Windows.Forms.Label swiftCpLabel;
         private System.Windows.Forms.Button swiftCpButton3;
         private System.Windows.Forms.Button SwiftCopyHelpButton;
+        private wyDay.Controls.SplitButton TransSplitButton;
+        private System.Windows.Forms.ContextMenuStrip TransModeContexMenuStrip;
     }
 }
 

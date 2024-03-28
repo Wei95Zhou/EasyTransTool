@@ -21,7 +21,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "2.7.2";
+        private string sRelVer = "3.0.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -72,8 +72,8 @@ namespace ExtPkgUpdateTool
             TypeSelBox.Enabled = true;
             duIpDelButton.Enabled = true;
             ruIpDelButton.Enabled = true;
-            uploadButton.Enabled = true;
             pw123qweCheckBox.Enabled = true;
+            TransSplitButton.Enabled = true;
 
             //Check whether need to config Base Server
             if (string.Equals("USER_NAME", usrBaseServer.GetName()) || string.Equals("PASSWORD", usrBaseServer.GetPW()))
@@ -99,6 +99,9 @@ namespace ExtPkgUpdateTool
             //Init CheckBox
             if (string.Equals("TRUE", pw123qweTypeOp.GetType()))
                 pw123qweCheckBox.Checked = true;
+
+            //Init TransModeSplitButton
+            TransButtonRefresh();
 
             ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
             ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
@@ -200,11 +203,12 @@ namespace ExtPkgUpdateTool
                     }
                 }
             }
+            TransButtonRefresh();
         }
 
         string scriptPath;
 
-        private void uploadButton_Click(object sender, EventArgs e)
+        private void TransSplitButton_Click(object sender, EventArgs e)
         {
             fileTransProgressBar.Value = 0;
 
@@ -219,7 +223,7 @@ namespace ExtPkgUpdateTool
             ipAddress[2] = fsuIpAddress;
             ipAddress[3] = ensfAddress;
 
-            
+
             scriptPath = fileTransScriptPreCheck();
 
             if (scriptPath == String.Empty) return;
@@ -245,11 +249,11 @@ namespace ExtPkgUpdateTool
             fileTransBGWorker.ReportProgress(8);
             if (string.Equals("PC->RU", transModeTypeOp.GetType()))
             {
-                upload_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
+                upload_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
             }
             else if (string.Equals("RU->PC", transModeTypeOp.GetType()))
             {
-                download_update_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
+                download_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
             }
             initAllObject();
             return;
@@ -284,39 +288,98 @@ namespace ExtPkgUpdateTool
             EnsfComboBox.Enabled = false;
             ensfDelButton.Enabled = false;
             dlFileName.Enabled = false;
-            uploadButton.Enabled = false;
             pw123qweCheckBox.Enabled = false;
+            TransSplitButton.Enabled = false;
             return;
         }
 
         private string fileTransScriptPreCheck()
         {
-            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            if (string.Equals("上传文件", TransSplitButton.Text) || string.Equals("下载文件", TransSplitButton.Text))
             {
-                if (string.Equals("vDU-FSU-RU", TypeSelBox.Text)) scriptPath = "./script/vduFsuRuUpload.script";
-                else if (string.Equals("CDU-RU", TypeSelBox.Text)) scriptPath = "./script/cduRuUpload.script";
-                else if (string.Equals("vDU-ORU", TypeSelBox.Text)) scriptPath = "./script/vduOruUpload.script";
-                else
+                if (string.Equals("PC->RU", TransModeSelBox.Text))
                 {
-                    MessageBox.Show("无效的连接类型！");
-                    return String.Empty;
+                    if (string.Equals("vDU-FSU-RU", TypeSelBox.Text)) scriptPath = "./script/vduFsuRuUpload.script";
+                    else if (string.Equals("CDU-RU", TypeSelBox.Text)) scriptPath = "./script/cduRuUpload.script";
+                    else if (string.Equals("vDU-ORU", TypeSelBox.Text)) scriptPath = "./script/vduOruUpload.script";
+                    else
+                    {
+                        MessageBox.Show("无效的连接类型！");
+                        return String.Empty;
+                    }
                 }
-            }
-            else if (string.Equals("RU->PC", TransModeSelBox.Text))
-            {
-                if (string.Equals("vDU-FSU-RU", TypeSelBox.Text)) scriptPath = "./script/vduFsuRuDownload.script";
-                else if (string.Equals("CDU-RU", TypeSelBox.Text)) scriptPath = "./script/cduRuDownload.script";
-                else if (string.Equals("vDU-ORU", TypeSelBox.Text)) scriptPath = "./script/vduOruDownload.script";
+                else if (string.Equals("RU->PC", TransModeSelBox.Text))
+                {
+                    if (string.Equals("vDU-FSU-RU", TypeSelBox.Text)) scriptPath = "./script/vduFsuRuDownload.script";
+                    else if (string.Equals("CDU-RU", TypeSelBox.Text)) scriptPath = "./script/cduRuDownload.script";
+                    else if (string.Equals("vDU-ORU", TypeSelBox.Text)) scriptPath = "./script/vduOruDownload.script";
+                    else
+                    {
+                        MessageBox.Show("无效的连接类型！");
+                        return String.Empty;
+                    }
+                }
                 else
                 {
-                    MessageBox.Show("无效的连接类型！");
+                    MessageBox.Show("无效的传输类型！");
                     return String.Empty;
                 }
             }
             else
             {
-                MessageBox.Show("无效的传输类型！");
-                return String.Empty;
+                if (string.Equals("PC->RU", TransModeSelBox.Text))
+                {
+                    if (string.Equals("vDU-FSU-RU", TypeSelBox.Text))
+                    {
+                        if ((2 == uploadFilePathOp.PathCount())
+                        && (((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(0))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(1))))
+                        || ((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(1))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(0))))))
+                        {
+                            scriptPath = "./script/vduFsuRuRuswAppUpdate.script";
+                        }
+                        else
+                        {
+                            MessageBox.Show("更新RUSW_APP.out需要同时选择RUSW_APP.out和SymTbl.txt为上传文件！");
+                            return String.Empty;
+                        }
+                    }
+                    else if (string.Equals("CDU-RU", TypeSelBox.Text))
+                    {
+                        if ((2 == uploadFilePathOp.PathCount())
+                        && (((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(0))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(1))))
+                        || ((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(1))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(0))))))
+                        {
+                            scriptPath = "./script/cduRuRuswAppUpdate.script";
+                        }
+                        else
+                        {
+                            MessageBox.Show("更新RUSW_APP.out需要同时选择RUSW_APP.out和SymTbl.txt为上传文件！");
+                            return String.Empty;
+                        }
+                    }
+                    else if (string.Equals("vDU-ORU", TypeSelBox.Text))
+                    {
+                        if ((1 == uploadFilePathOp.PathCount()) && (string.Equals("rcm.van", uploadFilePathOp.getSelFileNameByIndex(0))))
+                        {
+                            scriptPath = "./script/vduOruRcmUpdate.script";
+                        }
+                        else
+                        {
+                            MessageBox.Show("更新rcm.van需要选择rcm.van为上传文件！");
+                            return String.Empty;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("无效的连接类型！");
+                        return String.Empty;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("RU->PC无法" + TransSplitButton.Text + "！");
+                    return String.Empty;
+                }
             }
             return scriptPath;
         }
@@ -395,7 +458,7 @@ namespace ExtPkgUpdateTool
             return false;
         }
 
-        private void upload_update_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
+        private void upload_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
         {
             // Start update procedure
             // 1.Put file to 116.8 server
@@ -433,6 +496,16 @@ namespace ExtPkgUpdateTool
                         break;
                     }
                 }
+                if(string.Equals("./script/vduFsuRuRuswAppUpdate.script", scriptPath) || string.Equals("./script/cduRuRuswAppUpdate.script", scriptPath))
+                {
+                    if (false == serverSftpOp.UploadFile("./script/RuswAppUpdate.sh", tempFilePathInServer + "/RuswAppUpdate.sh"))
+                        failFlag = true;
+                }
+                else if (string.Equals("./script/vduOruRcmUpdate.script", scriptPath))
+                {
+                    if (false == serverSftpOp.UploadFile("./script/RcmVanUpdate.sh", tempFilePathInServer + "/RcmVanUpdate.sh"))
+                        failFlag = true;
+                }
                 serverSftpOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(40);
@@ -452,7 +525,7 @@ namespace ExtPkgUpdateTool
             fileTransBGWorker.ReportProgress(100);
         }
 
-        private void download_update_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
+        private void download_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
         {
             // Start update procedure
             // 1.Put file to 116.8 server
@@ -688,6 +761,7 @@ namespace ExtPkgUpdateTool
                 ComboBox_Refresh(FsuIpComboBox, fsuIpOp, fsuIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, fsuIpDelButton);
                 ComboBox_Refresh(EnsfComboBox, ensfOp, ensfOp.GetIPAddressCount(TypeSelBox.Text) - 1, ensfDelButton);
             }
+            TransButtonRefresh();
         }
 
         private void ComboBox_Refresh(System.Windows.Forms.ComboBox comboBox, IPAddressOp ipAddrOp, int defaultIpIndex, System.Windows.Forms.Button button)
@@ -885,6 +959,7 @@ namespace ExtPkgUpdateTool
         private void TransModeSelBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             TransModeSwitch();
+            TransButtonRefresh();
         }
 
         private void transModeSwitchButton_Click(object sender, EventArgs e)
@@ -898,6 +973,7 @@ namespace ExtPkgUpdateTool
                 TransModeSelBox.SelectedItem = "PC->RU";
             }
             TransModeSwitch();
+            TransButtonRefresh();
         }
 
         private void TransModeSwitch()
@@ -905,7 +981,6 @@ namespace ExtPkgUpdateTool
             if (string.Equals("PC->RU", TransModeSelBox.Text))
             {
                 fielPathLabel.Text = "文件路径:";
-                uploadButton.Text = "上传文件";
                 filePathSel.Text = "选择文件";
                 for (int i = 0; i < uploadFilePathOp.PathCount(); i++)
                 {
@@ -928,7 +1003,6 @@ namespace ExtPkgUpdateTool
             else if (string.Equals("RU->PC", TransModeSelBox.Text))
             {
                 fielPathLabel.Text = "保存路径:";
-                uploadButton.Text = "下载文件";
                 filePathSel.Text = "选择路径";
                 filePath.Text = dlFileSavePathOp.GetPath();
                 filePath.TextAlign = ContentAlignment.MiddleLeft;
@@ -936,6 +1010,56 @@ namespace ExtPkgUpdateTool
                 dlFileName.Text = dlFilPathInRuOp.GetPath();
                 fileDlLabel.Enabled = true;
                 dlHintButton.Enabled = true;
+            }
+        }
+
+        private void TransButtonRefresh()
+        {
+            TransModeContexMenuStrip.Items.Clear();
+
+            if (string.Equals("PC->RU", TransModeSelBox.Text))
+                TransModeContexMenuStrip.Items.Add("上传文件", null, TransModeContextMenuItem_Click);
+            else
+                TransModeContexMenuStrip.Items.Add("下载文件", null, TransModeContextMenuItem_Click);
+
+            TransModeContexMenuStrip.Items.Add("更新RUSW_APP", null, TransModeContextMenuItem_Font9_Click);
+            TransModeContexMenuStrip.Items.Add("更新rcm", null, TransModeContextMenuItem_Click);
+
+            TransSplitButton.AutoSize = false;
+            TransSplitButton.Text = TransModeContexMenuStrip.Items[0].Text;
+            TransSplitButton.Font = new Font("宋体", 12, FontStyle.Regular);
+
+            if (string.Equals("PC->RU", TransModeSelBox.Text))
+            {
+                if (string.Equals("vDU-FSU-RU", TypeSelBox.Text) || string.Equals("CDU-RU", TypeSelBox.Text))
+                {
+                    TransModeContexMenuStrip.Items[2].Enabled = false;
+                    if ((2 == uploadFilePathOp.PathCount())
+                        && (((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(0))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(1))))
+                        || ((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(1))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(0))))))
+                    {
+                        TransSplitButton.Text = TransModeContexMenuStrip.Items[1].Text;
+                        TransSplitButton.Font = new Font("宋体", 9, FontStyle.Regular);
+                    }
+                }
+                else if (string.Equals("vDU-ORU", TypeSelBox.Text))
+                {
+                    TransModeContexMenuStrip.Items[1].Enabled = false;
+                    if ((1 == uploadFilePathOp.PathCount()) && (string.Equals("rcm.van", uploadFilePathOp.getSelFileNameByIndex(0))))
+                    {
+                        TransSplitButton.Text = TransModeContexMenuStrip.Items[2].Text;
+                    }
+                }
+                else
+                {
+                    TransModeContexMenuStrip.Items[1].Enabled = false;
+                    TransModeContexMenuStrip.Items[2].Enabled = false;
+                }
+            }
+            else
+            {
+                TransModeContexMenuStrip.Items[1].Enabled = false;
+                TransModeContexMenuStrip.Items[2].Enabled = false;
             }
         }
 
@@ -1005,5 +1129,21 @@ namespace ExtPkgUpdateTool
             else
                 pw123qweTypeOp.SaveType("FALSE");
         }
+
+        private void TransModeContextMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            TransSplitButton.Text = item.Text;
+            TransSplitButton.AutoSize = false;
+            TransSplitButton.Font = new Font("宋体", 12, FontStyle.Regular);
+        }
+        private void TransModeContextMenuItem_Font9_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            TransSplitButton.Text = item.Text;
+            TransSplitButton.AutoSize = false;
+            TransSplitButton.Font = new Font("宋体", 9, FontStyle.Regular);
+        }
+
     }
 }
