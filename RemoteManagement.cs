@@ -100,18 +100,19 @@ namespace RemoteManagement
             }
         }
 
-        public bool WaitForOutput(string expectedOutput)
+        public int WaitForOutputForever(string[] expectedOutput)
         {
             if (shellStream == null || !shellStream.CanRead)
             {
                 Console.WriteLine("SSH shell is not available for reading.");
-                return false;
+                return -1;
             }
 
             try
             {
                 var outputBuffer = new StringBuilder();
                 var buffer = new byte[1024];
+                int expOutputNum = expectedOutput.Length;
 
                 while (true)
                 {
@@ -127,35 +128,41 @@ namespace RemoteManagement
                     outputBuffer.Append(output);
 
                     // 检查是否达到预期的输出
-                    if (outputBuffer.ToString().Contains(expectedOutput))
+                    for (int i = 0; i < expOutputNum; i++)
                     {
-                        return true;
+                        if (outputBuffer.ToString().Contains(expectedOutput[i]))
+                            return ++i;
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to wait for SSH output: {ex.Message}");
-                return false;
+                return -1;
             }
         }
 
-        public bool WaitForOutput_Timer(string expectedOutput)
+        public int WaitForOutput(string[] expectedOutput, int timeoutThreshold)
         {
+            if (timeoutThreshold < 0)
+            {
+                return WaitForOutputForever(expectedOutput);
+            }
             if (shellStream == null || !shellStream.CanRead)
             {
                 Console.WriteLine("SSH shell is not available for reading.");
-                return false;
+                return -1;
             }
 
             try
             {
                 var outputBuffer = new StringBuilder();
                 var buffer = new byte[1024];
+                int expOutputNum = expectedOutput.Length;
 
                 DateTime startTime = DateTime.Now; // 记录起始时间
 
-                while ((DateTime.Now - startTime).TotalSeconds <= 5) // 检查经过的时间是否超过5秒
+                while ((DateTime.Now - startTime).TotalSeconds <= timeoutThreshold) // 检查经过的时间是否超过门限
                 {
                     var bytesRead = shellStream.Read(buffer, 0, buffer.Length);
                     /*if (bytesRead <= 0)
@@ -169,18 +176,20 @@ namespace RemoteManagement
                     outputBuffer.Append(output);
 
                     // 检查是否达到预期的输出
-                    if (outputBuffer.ToString().Contains(expectedOutput))
+                    for (int i = 0; i < expOutputNum; i++)
                     {
-                        return true;
+                        if (outputBuffer.ToString().Contains(expectedOutput[i]))
+                            return ++i;
                     }
+
                 }
-                Console.WriteLine("Timeout: no expected output found within 5 seconds."); // 超时信息
-                return false;
+                Console.WriteLine("Timeout: no expected output found within " + timeoutThreshold + " seconds."); // 超时信息
+                return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to wait for SSH output: {ex.Message}");
-                return false;
+                return -1;
             }
         }
 

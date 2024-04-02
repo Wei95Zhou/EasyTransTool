@@ -10,6 +10,7 @@ using RemoteManagement;
 using UserManagement;
 using SwiftCopyButtonManagement;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ExtPkgUpdateTool
 {
@@ -21,7 +22,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "3.0.0";
+        private string sRelVer = "3.1.0";
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -64,6 +65,8 @@ namespace ExtPkgUpdateTool
             initAllObject();
         }
 
+        //Only ref
+        static bool startUpFlag = false;
         private void initAllObject()
         {
             TransModeSelBox.Enabled = true;
@@ -101,7 +104,12 @@ namespace ExtPkgUpdateTool
                 pw123qweCheckBox.Checked = true;
 
             //Init TransModeSplitButton
-            TransButtonRefresh();
+            if (startUpFlag == false)
+            {
+                startUpFlag = true;
+                TransButtonRefresh();
+            }
+            
 
             ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
             ComboBox_Refresh(RuIpComboBox, ruIpOp, ruIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, ruIpDelButton);
@@ -242,18 +250,18 @@ namespace ExtPkgUpdateTool
         private void fileTransBGWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             var receiver = e.Argument as object[];
-            string duIpAddress = (string)receiver[0];
-            string ruIpAddress = (string)receiver[1];
-            string fsuIpAddress = (string)receiver[2];
-            string ensfAddress = (string)receiver[3];
+            string[] ipSet = new string[receiver.Length];
+            for (int i = 0; i < receiver.Length; i++)
+                ipSet[i] = receiver[i].ToString();
+
             fileTransBGWorker.ReportProgress(8);
             if (string.Equals("PC->RU", transModeTypeOp.GetType()))
             {
-                upload_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
+                upload_Core(ipSet);
             }
             else if (string.Equals("RU->PC", transModeTypeOp.GetType()))
             {
-                download_Core(duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress);
+                download_Core(ipSet);
             }
             initAllObject();
             return;
@@ -359,13 +367,13 @@ namespace ExtPkgUpdateTool
                     }
                     else if (string.Equals("vDU-ORU", TypeSelBox.Text))
                     {
-                        if ((1 == uploadFilePathOp.PathCount()) && (string.Equals("rcm.van", uploadFilePathOp.getSelFileNameByIndex(0))))
+                        if ((1 == uploadFilePathOp.PathCount()) && (uploadFilePathOp.getSelFileNameByIndex(0).Contains("rcm.")))
                         {
                             scriptPath = "./script/vduOruRcmUpdate.script";
                         }
                         else
                         {
-                            MessageBox.Show("更新rcm.van需要选择rcm.van为上传文件！");
+                            MessageBox.Show("更新rcm需要选择rcm为上传文件！");
                             return String.Empty;
                         }
                     }
@@ -458,7 +466,7 @@ namespace ExtPkgUpdateTool
             return false;
         }
 
-        private void upload_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
+        private void upload_Core(string[] ipSet)
         {
             // Start update procedure
             // 1.Put file to 116.8 server
@@ -503,7 +511,7 @@ namespace ExtPkgUpdateTool
                 }
                 else if (string.Equals("./script/vduOruRcmUpdate.script", scriptPath))
                 {
-                    if (false == serverSftpOp.UploadFile("./script/RcmVanUpdate.sh", tempFilePathInServer + "/RcmVanUpdate.sh"))
+                    if (false == serverSftpOp.UploadFile("./script/RcmUpdate.sh", tempFilePathInServer + "/RcmUpdate.sh"))
                         failFlag = true;
                 }
                 serverSftpOp.Disconnect();
@@ -511,21 +519,22 @@ namespace ExtPkgUpdateTool
             fileTransBGWorker.ReportProgress(40);
             if (true == serverSshOp.Connect())
             {
-                if((true == failFlag) || (false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 40)))
+                logFile.ClearFile();
+                if ((true == failFlag) || (true != serverSshOp.StartShell()) || (false == script_execute_core(scriptPath, serverSshOp, ipSet, timeStamp, 40)))
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Upload Fail >> " + filePathInServer + "TransResult.log");
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + " " + sRelVer + " UploadFail >> " + filePathInServer + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Upload Succuss >> " + filePathInServer + "TransResult.log");
+                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + " " + sRelVer + " UploadSuccuss >> " + filePathInServer + "TransResult.log");
                 serverSshOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(100);
         }
 
-        private void download_Core(string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress)
+        private void download_Core(string[] ipSet)
         {
             // Start update procedure
             // 1.Put file to 116.8 server
@@ -545,10 +554,12 @@ namespace ExtPkgUpdateTool
             if (true == serverSshOp.Connect())
             {
                 serverSshOp.RunCommand("mkdir -p " + tempFilePathInServer);
-                if(false == script_execute_core(serverSshOp, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp, 10))
+
+                logFile.ClearFile();
+                if ((true != serverSshOp.StartShell()) || (false == script_execute_core(scriptPath, serverSshOp, ipSet, timeStamp, 10)))
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Download Fail >> " + filePathInServer + "TransResult.log");
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + " " + sRelVer + " DownloadFail >> " + filePathInServer + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
@@ -575,56 +586,64 @@ namespace ExtPkgUpdateTool
                 if (true == failFlag)
                 {
                     serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Download Fail >> " + filePathInServer + "TransResult.log");
+                    serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + " " + sRelVer + " DownloadFail >> " + filePathInServer + "TransResult.log");
                     serverSshOp.Disconnect();
                     return;
                 }
                 serverSshOp.RunCommand("rm -rf " + tempFilePathInServer);
-                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + sRelVer + " Download Success >> " + filePathInServer + "TransResult.log");
+                serverSshOp.RunCommand("echo " + "$(date +\"%Y-%m-%d %H:%M:%S\") " + Environment.UserName + " " + sRelVer + " DownloadSuccess >> " + filePathInServer + "TransResult.log");
                 serverSshOp.Disconnect();
             }
             fileTransBGWorker.ReportProgress(100);
         }
 
-        private bool script_execute_core(SshOp serverSshOp, string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress, string timeStamp, int transBasePercent)
+        int timeoutThreshold = 5;
+        int waitResult = 0;//0:didn't get expeced output, 1:get first expected output, 2:get second expected output...
+        private bool script_execute_core(string scriptFile, SshOp serverSshOp, string[] ipSet, string timeStamp, int transBasePercent)
         {
-            double scriptLineCnt = File.ReadLines(scriptPath).Count();
-            double lineCounter = 0;
-            if (true == serverSshOp.StartShell())
+            try
             {
-                try
+                double scriptLineCnt = File.ReadLines(scriptFile).Count();
+                double lineCounter = 0;
+                logFile.AppendToFile("===============Start Running " + scriptFile + "===============\n");
+                string[] fileContents = File.ReadAllLines(scriptFile);
+
+                for (int lineId = 1; lineId <= fileContents.Length; lineId++)
                 {
-                    using (StreamReader reader = new StreamReader(scriptPath))
+                    string line = scriptUpdater(fileContents[lineId - 1], ipSet, timeStamp);
+
+                    logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + line + "\n");
+
+                    int execRst = scriptExecuter(line, scriptFile, serverSshOp, ipSet, timeStamp);
+                    if (-1 == execRst) return false;
+                    else if (0 < execRst) lineId = execRst - 1; //-1 because lineId++ every for loop
+
+                    lineCounter++;
+                    if (0 < transBasePercent)
                     {
-                        string line;
-                        logFile.ClearFile();
-                        logFile.AppendToFile("running " + scriptPath + "\n");
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            line = scriptUpdater(line, duIpAddress, ruIpAddress, fsuIpAddress, ensfAddress, timeStamp);
-                            if((line == string.Empty) || (false == scriptExecuter(line, serverSshOp)))
-                            {
-                                return false;
-                            }
-                            lineCounter++;
-                            fileTransBGWorker.ReportProgress(transBasePercent + (int)((lineCounter / scriptLineCnt) * 60));
-                        }
+                        fileTransBGWorker.ReportProgress(transBasePercent + (int)((lineCounter / scriptLineCnt) * 60));
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Failed to read file: " + ex.Message);
-                }
+                logFile.AppendToFile("===============Finish Running " + scriptFile + "===============\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to read file: " + ex.Message);
+                return false;
             }
             return true;
         }
 
-        private string scriptUpdater(string line, string duIpAddress, string ruIpAddress, string fsuIpAddress, string ensfAddress, string timeStamp)
+        private string scriptUpdater(string line, string[] ipSet, string timeStamp)
         {
             string sUpdatedScript = line;
             string userInputFilePathInRU = dlFilPathInRuOp.GetPath();
             string filePathInRU;
             string fileNameInRU;
+            string duIpAddress = ipSet[0];
+            string ruIpAddress = ipSet[1];
+            string fsuIpAddress = ipSet[2];
+            string ensfAddress = ipSet[3];
 
             if (dlFilPathInRuOp.GetPath().StartsWith("/"))
             {
@@ -683,52 +702,114 @@ namespace ExtPkgUpdateTool
             sUpdatedScript = sUpdatedScript.Replace("TIME_STAMP", timeStamp);
             return sUpdatedScript;
         }
-        private bool scriptExecuter(string script, SshOp serverSshOp)
+
+        private int scriptExecuter(string script, string scriptFile, SshOp serverSshOp, string[] ipSet, string timeStamp)
         {
-            Console.WriteLine(script);
-            logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + script + "\n");
-            if (script.StartsWith("#") || (script == string.Empty))
+            string[] subScript = Regex.Matches(script, @"('[^']*')|([^ ]+)")
+                                                    .Cast<Match>()
+                                                    .Select(m => m.Value.Trim('\''))
+                                                    .ToArray();
+
+            if ((subScript[0].StartsWith("#")) || (subScript[0] == string.Empty) || (subScript[0].EndsWith(":")))
+                return 0;
+            else if (string.Equals("sendln", subScript[0]))
+                serverSshOp.ExecuteCommand(subScript[1]);
+            else if (string.Equals("wait", subScript[0]))
             {
-                return true;
-            }
-            else if (script.StartsWith("sendln "))
-            {
-                string command = GetCommand(script);
-                serverSshOp.ExecuteCommand(command);
-            }
-            else if (script.StartsWith("wait "))
-            {
-                string expectedString = GetExpectedString(script);
-                serverSshOp.WaitForOutput(expectedString);
-            }
-            else if (script.StartsWith("wait_timer "))
-            {
-                string expectedString = GetExpectedString(script);
-                if (false == serverSshOp.WaitForOutput_Timer(expectedString))
+                string[] expOutput = subScript.Skip(1).ToArray();
+                waitResult = serverSshOp.WaitForOutput(expOutput, timeoutThreshold);
+                if (waitResult < 0)
                 {
                     MessageBox.Show("传输失败，请检查IP配置及连接情况！");
-                    return false;
+                    return -1;
+                }
+            }
+            else if (string.Equals("max_wait_time", subScript[0]))
+            {
+                if (int.TryParse(subScript[1], out int maxWaitTime))
+                {
+                    if (maxWaitTime < 0)
+                        timeoutThreshold = -1;
+                    else
+                        timeoutThreshold = maxWaitTime;
+                }
+                else
+                {
+                    MessageBox.Show(script + "\n设置最大等待时间失败！");
+                    return -1;
+                }
+            }
+            else if (string.Equals("if", subScript[0]))
+            {
+                if (int.TryParse(subScript[1], out int wantedOutput))
+                {
+                    if (wantedOutput == waitResult)
+                    {
+                        string remainCmd = string.Join(" ", subScript.Skip(2));
+                        return scriptExecuter(remainCmd, scriptFile, serverSshOp, ipSet, timeStamp);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(script + "\nif命令使用方法错误！");
+                    return -1;
+                }
+            }
+            else if (string.Equals("goto", subScript[0]))
+            {
+                int lineId = FindLabel(scriptFile, subScript[1]);
+                if (lineId == -1) { return -1; }
+                return lineId;
+            }
+            else if (string.Equals("runscript", subScript[0]))
+            {
+                string scriptFileName = subScript[1];
+                if (!File.Exists(scriptFileName))
+                {
+                    MessageBox.Show(scriptFileName + "脚本不存在！");
+                }
+                if (false == script_execute_core(scriptFileName, serverSshOp, ipSet, timeStamp, -1)) 
+                    return -1;
+            }
+            else if (string.Equals("msleep", subScript[0]))
+            {
+                if (int.TryParse(subScript[1], out int msleepTime))
+                {
+                    Thread.Sleep(msleepTime);
+                }
+                else
+                {
+                    MessageBox.Show(script + "\nusleep命令使用方法错误！");
+                    return -1;
                 }
             }
             else
             {
-                Console.WriteLine("Invalid command: " + script);
+                MessageBox.Show("非法命令: " + script);
+                return -1;
             }
-            return true;
+            return 0;
         }
 
-        static string GetCommand(string line)
+        private int FindLabel(string filePath, string labelName)
         {
-            int startIndex = line.IndexOf('\'') + 1;
-            int endIndex = line.LastIndexOf('\'');
-            return line.Substring(startIndex, endIndex - startIndex);
-        }
+            try
+            {
+                string[] lines = File.ReadAllLines(filePath);
 
-        static string GetExpectedString(string line)
-        {
-            int startIndex = line.IndexOf('\'') + 1;
-            int endIndex = line.LastIndexOf('\'');
-            return line.Substring(startIndex, endIndex - startIndex);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i] == labelName + ":")
+                    {
+                        return i + 1; // 行号从1开始，数组索引从0开始，所以要加1
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(filePath + "中找不到标签: " + labelName);
+            }
+            return -1;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -1034,9 +1115,7 @@ namespace ExtPkgUpdateTool
                 if (string.Equals("vDU-FSU-RU", TypeSelBox.Text) || string.Equals("CDU-RU", TypeSelBox.Text))
                 {
                     TransModeContexMenuStrip.Items[2].Enabled = false;
-                    if ((2 == uploadFilePathOp.PathCount())
-                        && (((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(0))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(1))))
-                        || ((string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(1))) && (string.Equals("SymTbl.txt", uploadFilePathOp.getSelFileNameByIndex(0))))))
+                    if (string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(0)) || string.Equals("RUSW_APP.out", uploadFilePathOp.getSelFileNameByIndex(1)))
                     {
                         TransSplitButton.Text = TransModeContexMenuStrip.Items[1].Text;
                         TransSplitButton.Font = new Font("宋体", 9, FontStyle.Regular);
@@ -1045,7 +1124,7 @@ namespace ExtPkgUpdateTool
                 else if (string.Equals("vDU-ORU", TypeSelBox.Text))
                 {
                     TransModeContexMenuStrip.Items[1].Enabled = false;
-                    if ((1 == uploadFilePathOp.PathCount()) && (string.Equals("rcm.van", uploadFilePathOp.getSelFileNameByIndex(0))))
+                    if (uploadFilePathOp.getSelFileNameByIndex(0).Contains("rcm."))
                     {
                         TransSplitButton.Text = TransModeContexMenuStrip.Items[2].Text;
                     }

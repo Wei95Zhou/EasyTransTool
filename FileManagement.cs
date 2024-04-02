@@ -243,9 +243,23 @@ namespace FileManagement
         {
             try
             {
+                // 获取文件路径（不包括文件名）
+                string directoryPath = Path.GetDirectoryName(sFilePath);
+
+                // 确保路径存在
+                if (!Directory.Exists(directoryPath))
+                {
+                    // 如果路径不存在，则创建路径
+                    Directory.CreateDirectory(directoryPath);
+                }
+
                 if (!File.Exists(sFilePath))
                 {
-                    File.Create(sFilePath).Close();
+                    // 创建文件
+                    using (var stream = File.Create(sFilePath))
+                    {
+                        // 关闭文件流，确保文件被正确创建
+                    }
                     return true;
                 }
                 else
@@ -256,7 +270,7 @@ namespace FileManagement
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error while creating the file: " + ex.Message);
+                Console.WriteLine("Error while creating the file or directory: " + ex.Message);
                 return false;
             }
         }
