@@ -22,7 +22,8 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "3.1.0";
+        private string sRelVer = "3.1.1";
+        private bool globalTransFlag = false;
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -62,12 +63,10 @@ namespace ExtPkgUpdateTool
             //Show new version release path in form
             newVerRelPath.Text = newVerPathOp.GetPath();
 
-            initAllObject();
+            initAllObject(false);
         }
 
-        //Only ref
-        static bool startUpFlag = false;
-        private void initAllObject()
+        private void initAllObject(bool transEndFlag)
         {
             TransModeSelBox.Enabled = true;
             transModeSwitchButton.Enabled = true;
@@ -104,11 +103,7 @@ namespace ExtPkgUpdateTool
                 pw123qweCheckBox.Checked = true;
 
             //Init TransModeSplitButton
-            if (startUpFlag == false)
-            {
-                startUpFlag = true;
-                TransButtonRefresh();
-            }
+            TransButtonRefresh();
             
 
             ComboBox_Refresh(DuIpComboBox, duIpOp, duIpOp.GetIPAddressCount(TypeSelBox.Text) - 1, duIpDelButton);
@@ -218,6 +213,7 @@ namespace ExtPkgUpdateTool
 
         private void TransSplitButton_Click(object sender, EventArgs e)
         {
+            globalTransFlag = true;
             fileTransProgressBar.Value = 0;
 
             // Save the IP address and refresh the ComboBox
@@ -263,7 +259,8 @@ namespace ExtPkgUpdateTool
             {
                 download_Core(ipSet);
             }
-            initAllObject();
+            initAllObject(true);
+            globalTransFlag = false;
             return;
         }
 
@@ -705,14 +702,16 @@ namespace ExtPkgUpdateTool
 
         private int scriptExecuter(string script, string scriptFile, SshOp serverSshOp, string[] ipSet, string timeStamp)
         {
+            if (script == string.Empty)
+                return 0;
             string[] subScript = Regex.Matches(script, @"('[^']*')|([^ ]+)")
                                                     .Cast<Match>()
                                                     .Select(m => m.Value.Trim('\''))
                                                     .ToArray();
 
-            if ((subScript[0].StartsWith("#")) || (subScript[0] == string.Empty) || (subScript[0].EndsWith(":")))
+            if ((subScript[0].StartsWith("#")) || (subScript[0].EndsWith(":")))
                 return 0;
-            else if (string.Equals("sendln", subScript[0]))
+            else if (string.Equals("send", subScript[0]))
                 serverSshOp.ExecuteCommand(subScript[1]);
             else if (string.Equals("wait", subScript[0]))
             {
@@ -1096,6 +1095,9 @@ namespace ExtPkgUpdateTool
 
         private void TransButtonRefresh()
         {
+            if (globalTransFlag)
+                return;
+
             TransModeContexMenuStrip.Items.Clear();
 
             if (string.Equals("PC->RU", TransModeSelBox.Text))

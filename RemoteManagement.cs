@@ -156,7 +156,6 @@ namespace RemoteManagement
 
             try
             {
-                var outputBuffer = new StringBuilder();
                 var buffer = new byte[1024];
                 int expOutputNum = expectedOutput.Length;
 
@@ -164,6 +163,7 @@ namespace RemoteManagement
 
                 while ((DateTime.Now - startTime).TotalSeconds <= timeoutThreshold) // 检查经过的时间是否超过门限
                 {
+                    var outputBuffer = new StringBuilder();
                     var bytesRead = shellStream.Read(buffer, 0, buffer.Length);
                     /*if (bytesRead <= 0)
                     {
