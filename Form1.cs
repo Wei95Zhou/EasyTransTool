@@ -22,7 +22,7 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "3.1.1";
+        private string sRelVer = "3.1.2";
         private bool globalTransFlag = false;
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
@@ -717,7 +717,9 @@ namespace ExtPkgUpdateTool
             {
                 string[] expOutput = subScript.Skip(1).ToArray();
                 waitResult = serverSshOp.WaitForOutput(expOutput, timeoutThreshold);
-                if (waitResult < 0)
+                if (expOutput.Length > 1)
+                    logFile.AppendToFile(DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + "waitResult = " + waitResult + "\n");
+                if (waitResult <= 0)
                 {
                     MessageBox.Show("传输失败，请检查IP配置及连接情况！");
                     return -1;
@@ -781,6 +783,14 @@ namespace ExtPkgUpdateTool
                     MessageBox.Show(script + "\nusleep命令使用方法错误！");
                     return -1;
                 }
+            }
+            else if (string.Equals("end", subScript[0]))
+            {
+                if (2 == subScript.Length)
+                    MessageBox.Show(subScript[1] + "，传输过程中止！");
+                else
+                    MessageBox.Show("传输过程遇到问题，中止！");
+                    return -1;
             }
             else
             {
