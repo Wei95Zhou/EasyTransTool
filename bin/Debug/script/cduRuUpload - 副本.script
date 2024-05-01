@@ -1,0 +1,25 @@
+sendln 'touch /home/zw/1'
+max_wait_time 1
+wait 'zw' 'abc'
+label2:
+wait 'zw1' 'abc1'
+runscript './script/abctest.txt'
+sendln 'touch /home/zw/after123abcuser'
+goto label1
+wait 'zw3' 'abc3'
+
+
+#wait 'zw' 'abc'
+#if 1 goto LABEL1
+#if RST=2 goto LABEL2
+#LABEL1:
+#sendln 'touch /home/zw/123abcuser'
+#wait 'zw'
+#LABEL2:
+#sendln 'touch /home/zw/abc123user'
+#wait 'zw'
+
+label1:
+sendln 'touch /home/zw/2'
+wait 'zw2' 'abc2'
+goto label2

@@ -1,0 +1,2 @@
+sendln 'touch /home/zw/123abcuser'
+wait 'zw'

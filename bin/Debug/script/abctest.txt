@@ -1,0 +1,1 @@
+send 'touch /home/zw/aaaabbbb'

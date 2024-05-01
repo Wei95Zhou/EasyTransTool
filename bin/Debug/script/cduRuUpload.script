@@ -1,0 +1,10 @@
+send 'touch /home/zw/1'
+max_wait_time 10
+wait 'zw' 'abc'
+
+#wait 'zw1' 'abc1'
+
+#runscript './script/abctest.txt'
+
+#send 'touch /home/zw/after123abcuser'
+#wait 'zw3' 'abc3'

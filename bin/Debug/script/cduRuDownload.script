@@ -1,0 +1,2 @@
+sendln 'cp -rf /home/zw/How* /tmp/TIME_STAMP'
+wait 'zw'

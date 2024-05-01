@@ -1,0 +1,15 @@
+E:\WorkSpaces\C#\202307\EasyTransTool\bin\Debug\EasyTransTool.exe.config
+E:\WorkSpaces\C#\202307\EasyTransTool\bin\Debug\EasyTransTool.exe
+E:\WorkSpaces\C#\202307\EasyTransTool\bin\Debug\EasyTransTool.pdb
+E:\WorkSpaces\C#\202307\EasyTransTool\bin\Debug\Renci.SshNet.dll
+E:\WorkSpaces\C#\202307\EasyTransTool\bin\Debug\Renci.SshNet.xml
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.csproj.AssemblyReference.cache
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.csproj.SuggestedBindingRedirects.cache
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\ExtPkgUpdateTool.Form1.resources
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.Properties.Resources.resources
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.csproj.GenerateResource.cache
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.csproj.CoreCompileInputs.cache
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.csproj.CopyComplete
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.exe
+E:\WorkSpaces\C#\202307\EasyTransTool\obj\Debug\EasyTransTool.pdb
+E:\WorkSpaces\C#\202307\EasyTransTool\bin\Debug\SplitButton.dll

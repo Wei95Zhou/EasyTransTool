@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.filePathSel = new System.Windows.Forms.Button();
             this.filePath = new System.Windows.Forms.Label();
             this.fielPathLabel = new System.Windows.Forms.Label();
@@ -556,6 +557,7 @@
             this.Controls.Add(this.fielPathLabel);
             this.Controls.Add(this.filePath);
             this.Controls.Add(this.filePathSel);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(720, 500);
             this.Name = "Form1";
             this.Text = "EasyTransTool(Developed by wei.zhou@FW)";

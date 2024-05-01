@@ -1,0 +1,12 @@
+===============Start Running ./script/cduRuUpload.script===============
+[2024-04-04 12:50:22]send 'touch /home/zw/1'
+[2024-04-04 12:50:22]max_wait_time 10
+[2024-04-04 12:50:22]wait 'zw' 'abc'
+[2024-04-04 12:50:22]
+[2024-04-04 12:50:22]#wait 'zw1' 'abc1'
+[2024-04-04 12:50:22]
+[2024-04-04 12:50:22]#runscript './script/abctest.txt'
+[2024-04-04 12:50:22]
+[2024-04-04 12:50:22]#send 'touch /home/zw/after123abcuser'
+[2024-04-04 12:50:22]#wait 'zw3' 'abc3'
+===============Finish Running ./script/cduRuUpload.script===============
