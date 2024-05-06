@@ -22,8 +22,9 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "3.1.3";
+        private string sRelVer = "3.2.0";
         private bool globalTransFlag = false;
+        private bool minimizedNotiFlag = true;
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -970,7 +971,11 @@ namespace ExtPkgUpdateTool
                 this.WindowState = FormWindowState.Minimized;
                 this.ShowInTaskbar = false;
 
-                notifyIcon.ShowBalloonTip(500, "最小化", "软件已最小化到系统托盘，可右键图标关闭，或双击打开", ToolTipIcon.Info);
+                if (minimizedNotiFlag == true)
+                {
+                    minimizedNotiFlag = false;
+                    notifyIcon.ShowBalloonTip(500, "EasyTransTool最小化", "软件已最小化到系统托盘，可右键图标关闭，或双击打开", ToolTipIcon.Info);
+                }
 
                 TimeSpan timeSinceLastClosing = DateTime.Now - lastClosingTime;
                 // 如果时间差超过一天（大于等于24小时）
