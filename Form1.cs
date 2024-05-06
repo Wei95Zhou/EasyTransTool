@@ -11,6 +11,8 @@ using UserManagement;
 using SwiftCopyButtonManagement;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ExtPkgUpdateTool
 {
@@ -22,9 +24,12 @@ namespace ExtPkgUpdateTool
         private ToolStripMenuItem updateMenuItem;
         private ToolStripMenuItem exitMenuItem;
         private DateTime lastClosingTime;
-        private string sRelVer = "3.2.0";
+        private string sRelVer = "3.3.0";
         private bool globalTransFlag = false;
         private bool minimizedNotiFlag = true;
+
+        private string MutexNameHash = "";
+        private Mutex singleInstanceMutex;
 
         IPAddressOp duIpOp = new IPAddressOp("DuIp", "./config/IpDataSet.cfg");
         IPAddressOp ruIpOp = new IPAddressOp("RuIp", "./config/IpDataSet.cfg");
@@ -56,11 +61,34 @@ namespace ExtPkgUpdateTool
         //MainForm mainForm = new MainForm();
         public Form1()
         {
+            //通过exe路径对应的哈希值创建互斥体，从而实现同一个文件夹下exe文件不能双开的功能
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(System.Reflection.Assembly.GetEntryAssembly().Location));
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in hashBytes)
+                {
+                    sb.Append(b.ToString("X2"));
+                }
+                MutexNameHash = sb.ToString();
+            }
+            // 创建互斥体
+            singleInstanceMutex = new Mutex(true, MutexNameHash, out bool isFirstInstance);
+
+            // 检查是否是第一个实例
+            if (!isFirstInstance)
+            {
+                // 如果不是第一个实例，则关闭当前实例并退出
+                MessageBox.Show("已经打开了一个EasyBackupTool，请检查系统托盘。");
+                Close();
+                return;
+            }
+
             InitializeComponent();
             InitializeSystemTray();
             //Title Init
             lastClosingTime = DateTime.Now;
-            this.Text = "EasyTransTool-V" + sRelVer + "(Developed by wei.zhou@FW)";
+            this.Text = "EasyTransTool-V" + sRelVer + " (Developed by wei.zhou@FW)";
             //Show new version release path in form
             newVerRelPath.Text = newVerPathOp.GetPath();
 
